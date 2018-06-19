@@ -1,4 +1,4 @@
-package com.example.mostafa.myapplication;
+package com.example.mostafa.myapplication.POJOS;
 
 
 /**

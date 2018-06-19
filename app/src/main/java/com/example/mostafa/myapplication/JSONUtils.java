@@ -1,6 +1,6 @@
 package com.example.mostafa.myapplication;
 
-import android.content.Context;
+import com.example.mostafa.myapplication.POJOS.Entity;
 
 import org.json.JSONArray;
 import org.json.JSONException;

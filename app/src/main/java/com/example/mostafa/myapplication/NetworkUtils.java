@@ -1,8 +1,8 @@
 package com.example.mostafa.myapplication;
 
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
+import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.service.UserClient;
 
 import org.json.JSONException;
@@ -31,7 +31,7 @@ public class NetworkUtils {
     private static UserClient userClient=retrofit.create(UserClient.class);
 
     public static void getResponse(String message){
-        Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=28/11/2017&q="+message,
+        Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=19/6/2018&q="+message,
                 " Bearer "+token);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
