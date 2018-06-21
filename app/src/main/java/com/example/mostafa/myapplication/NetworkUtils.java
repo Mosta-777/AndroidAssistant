@@ -21,7 +21,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by Mostafa on 2/19/2018.
  */
 
-public class NetworkUtils {
+public class NetworkUtils implements CommunicationInterfaces.AnalyzerNetworkUtilsInterface{
     private static final String baseURL="https://api.wit.ai/";
     private static final String token="EDM7POFMZLZ6H2OB253HNBAVYPBKW2RC";
     private static Retrofit.Builder builder=new Retrofit.Builder()
@@ -29,8 +29,50 @@ public class NetworkUtils {
             .addConverterFactory(GsonConverterFactory.create());
     private static Retrofit retrofit=builder.build();
     private static UserClient userClient=retrofit.create(UserClient.class);
+    /*private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer=new
+            IntentAnalyzerAndRecognizer(this);*/
+    private CommunicationInterfaces.AnalyzerNetworkUtilsInterface
+            analyzerNetworkUtilsInterface=new IntentAnalyzerAndRecognizer();
 
-    public static void getResponse(String message){
+    /*NetworkUtils(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
+            this.analyzerNetworkUtilsInterface=analyzerNetworkUtilsInterface;
+    }*/
+
+    NetworkUtils() {}
+    @Override
+    public void toNetworkUtils(String message) {
+        Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=19/6/2018&q="+message,
+                " Bearer "+token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if (response.isSuccessful()){
+                    try {
+                        ArrayList<Entity> receivedEntities=JSONUtils.getEntitesFromJSONResponse(response.body().string());
+                        analyzerNetworkUtilsInterface.toAnalyzer(receivedEntities);
+                        //IntentAnalyzerAndRecognizer.handleFetchedEntities(receivedEntities);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                    }
+                }else {
+                        analyzerNetworkUtilsInterface.toAnalyzerFailedResponse("Response was not successful");
+                    //Toast.makeText(getApplicationContext(),"Response is not successful",Toast.LENGTH_LONG).show();
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                analyzerNetworkUtilsInterface.toAnalyzerFailedResponse("No response");
+                //Toast.makeText(getApplicationContext(),"Call is not successful",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    @Override public void toAnalyzer(ArrayList<Entity> entities) {}
+    @Override public void toAnalyzerFailedResponse(String failingMessage) {}
+    /*public static void getResponse(String message){
         Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=19/6/2018&q="+message,
                 " Bearer "+token);
         call.enqueue(new Callback<ResponseBody>() {
@@ -40,7 +82,6 @@ public class NetworkUtils {
                     try {
                         ArrayList<Entity> receivedEntities=JSONUtils.getEntitesFromJSONResponse(response.body().string());
                         IntentAnalyzerAndRecognizer.handleFetchedEntities(receivedEntities);
-                        //Toast.makeText(getApplicationContext(),"Done",Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -57,7 +98,5 @@ public class NetworkUtils {
                 //Toast.makeText(getApplicationContext(),"Call is not successful",Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-
+    }*/
 }
