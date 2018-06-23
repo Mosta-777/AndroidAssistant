@@ -5,8 +5,6 @@ import android.util.Log;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
-import com.example.mostafa.myapplication.UIs.MainActivity;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,9 +18,9 @@ public class IntentAnalyzerAndRecognizer implements
         CommunicationInterfaces.MainActivityFunctionalityClassesInterface,
         CommunicationInterfaces.AnalyzerNetworkUtilsInterface {
 
-    private static final String ALARM_SET_INTENT_TYPE_ENTITY="alarm_set";
-    private static final String ALARM_SHOW_INTENT_TYPE_ENTITY="alarm_show";
-    private static final String ALARM_DELETE_INTENT_TYPE_ENTITY="alarm_delete";
+    public static final String ALARM_SET_INTENT_TYPE_ENTITY="alarm_set";
+    public static final String ALARM_SHOW_INTENT_TYPE_ENTITY="alarm_show";
+    public static final String ALARM_DELETE_INTENT_TYPE_ENTITY="alarm_delete";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
     private static final double CONFIDENCE_THRESHOLD = 0.65 ;
@@ -33,22 +31,21 @@ public class IntentAnalyzerAndRecognizer implements
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface
             mainActivityAndAnalyzerInterface;
     private CommunicationInterfaces.AnalyzerNetworkUtilsInterface
-            analyzerNetworkUtilsInterface = new NetworkUtils();
-    /*private NetworkUtils networkUtils = new NetworkUtils(this);*/
+            analyzerNetworkUtilsInterface;
 
     public IntentAnalyzerAndRecognizer(CommunicationInterfaces.MainActivityFunctionalityClassesInterface communicationInterface,
                                        ArrayList<String> whatWasHeardFromVoiceRecognizer){
         mainActivityAndAnalyzerInterface=communicationInterface;
         analyzeAndRealize(whatWasHeardFromVoiceRecognizer);
     }
-    /*IntentAnalyzerAndRecognizer(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
+    IntentAnalyzerAndRecognizer(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
         this.analyzerNetworkUtilsInterface=analyzerNetworkUtilsInterface;
-    }*/
-    public IntentAnalyzerAndRecognizer() {}
+    }
     public void analyzeAndRealize(ArrayList<String> whatWasHeardFromVoiceRecognizer){
         allPossibleStringsUserHasSaid=whatWasHeardFromVoiceRecognizer;
         sentences.clear();
         votingMap.clear();
+        analyzerNetworkUtilsInterface = new NetworkUtils(this);
         analyzerNetworkUtilsInterface.toNetworkUtils(whatWasHeardFromVoiceRecognizer.get(pointer++));
         //NetworkUtils.getResponse(whatWasHeardFromVoiceRecognizer.get(pointer++));
     }
@@ -84,7 +81,7 @@ public class IntentAnalyzerAndRecognizer implements
         if (winningIntent.equals(ALARM_SET_INTENT_TYPE_ENTITY) ||
                     winningIntent.equals(ALARM_SHOW_INTENT_TYPE_ENTITY) ||
                     winningIntent.equals(ALARM_DELETE_INTENT_TYPE_ENTITY)) {
-            Alarm alarm = new Alarm(this,theWinningSentences);
+            new Alarm(this,theWinningSentences);
         }
     }
 
@@ -152,9 +149,20 @@ public class IntentAnalyzerAndRecognizer implements
         }
         return -1;
     }
+    public static boolean containsIntentValue(String intentValue,ArrayList<Entity> receivedEntities){
+        for (int i=0;i<receivedEntities.size();i++){
+            if (receivedEntities.get(i).getName().equals(JSONUtils.ENTITY_INTENT_KEY) &&
+                    receivedEntities.get(i).getValue().equals(intentValue)) return true;
+        }
+        return false;
+    }
     @Override
-    public void onAlarmSetSucceeded() {}
+    public void onAlarmSetSucceeded() {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded();}
     @Override public void onAlarmSetRequestingData() {mainActivityAndAnalyzerInterface.onAlarmSetRequestingData();}
+    @Override public void onAlarmShowSucceeded() {
+        mainActivityAndAnalyzerInterface.onAlarmShowSucceeded();
+    }
+    @Override public void onAlarmDeleteSucceeded() { mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded();}
     @Override public void onGettingWitResponseFailed(String failingMessage) {
         mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);
     }

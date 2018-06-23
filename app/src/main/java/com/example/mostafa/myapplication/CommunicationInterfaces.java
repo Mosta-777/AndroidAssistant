@@ -14,6 +14,8 @@ public interface CommunicationInterfaces {
         void onAlarmSetSucceeded();
         //No passed data for the alarm as we will ask what time in all cases
         void onAlarmSetRequestingData();
+        void onAlarmShowSucceeded();
+        void onAlarmDeleteSucceeded();
         void onGettingWitResponseFailed(String failingMessage);
     }
     interface AnalyzerNetworkUtilsInterface {

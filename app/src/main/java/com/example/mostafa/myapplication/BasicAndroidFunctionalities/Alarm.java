@@ -1,6 +1,10 @@
 package com.example.mostafa.myapplication.BasicAndroidFunctionalities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.provider.AlarmClock;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
@@ -23,17 +27,36 @@ public class Alarm {
         analyzerinterface=intentAnalyzerAndRecognizer;
         // We then choose the best sentence , the sentence containing
         // either one datetime entity or one duration entity .
-        determineTheBestSentence(alarmSentences);
+        int i=isThereAnAlarmShowOrDelete(alarmSentences);
+        switch (i) {
+            case 0 : analyzerinterface.onAlarmShowSucceeded();break;
+            case 1 : analyzerinterface.onAlarmDeleteSucceeded();break;
+            case 2 : determineTheBestSentenceForAlarmSet(alarmSentences);break;
+        }
     }
-    private void determineTheBestSentence(ArrayList<ArrayList<Entity>> alarmSentences) {
+
+    private int isThereAnAlarmShowOrDelete(ArrayList<ArrayList<Entity>> alarmSentences) {
+        for (int i=0;i<alarmSentences.size();i++){
+            if (IntentAnalyzerAndRecognizer
+                    .containsIntentValue(IntentAnalyzerAndRecognizer.ALARM_SHOW_INTENT_TYPE_ENTITY
+                            ,alarmSentences.get(i))) return 0;
+            else if (IntentAnalyzerAndRecognizer
+                    .containsIntentValue(IntentAnalyzerAndRecognizer.ALARM_DELETE_INTENT_TYPE_ENTITY
+                            ,alarmSentences.get(i))) return 1;
+        }
+        return 2;
+    }
+
+    private void determineTheBestSentenceForAlarmSet(ArrayList<ArrayList<Entity>> alarmSentences) {
         ArrayList<Entity> selectedSentence = null;
         for (int i=0;i<alarmSentences.size();i++){
             // Is there only one datetime or only one duration , not one datetime and one duration
             // and not no date time and no duration ? if yes this is our statement , no
             // then continue searching .
-            if (isThereOnlyOne(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,alarmSentences.get(i)) ^
-                    isThereOnlyOne(IntentAnalyzerAndRecognizer.DURATION_ENTITY,alarmSentences.get(i)))
-                selectedSentence=alarmSentences.get(i);
+            if ((isThereOnlyOne(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,alarmSentences.get(i)) ^
+                    isThereOnlyOne(IntentAnalyzerAndRecognizer.DURATION_ENTITY,alarmSentences.get(i)))) {
+                selectedSentence = alarmSentences.get(i);break;
+            }
         }
         if (selectedSentence!=null){
             int dateTimeEntityIndex=IntentAnalyzerAndRecognizer
@@ -62,4 +85,13 @@ public class Alarm {
         }
         return counter == 1;
     }
+
+
+    public static void showAlarm(Context context){
+        //Toast.makeText(context,"Showing the alarms ..... ",Toast.LENGTH_LONG).show();
+        Intent openNewAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+        context.startActivity(openNewAlarm);
+    }
+
+
 }

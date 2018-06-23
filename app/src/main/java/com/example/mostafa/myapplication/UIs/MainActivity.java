@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.R;
@@ -80,8 +81,7 @@ public class MainActivity extends AppCompatActivity implements
                 endResults.add(results.get(i)+"     "+confidence[i]);
             }
             lv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1 , endResults));
-            CommunicationInterfaces.MainActivityFunctionalityClassesInterface
-                    intentAnalyzerAndRecognizer=new IntentAnalyzerAndRecognizer(this,results);
+            new IntentAnalyzerAndRecognizer(this,results);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -97,6 +97,17 @@ public class MainActivity extends AppCompatActivity implements
         // TODO for voice over : " Eshta 3ayz tzboto 3ala il sa3a kam "
         // TODO : open the simple activity or fragment or whatever of setting the alarm
         // TODO : open the voice recognition .
+    }
+
+    @Override
+    public void onAlarmShowSucceeded() {
+        // TODO for voice over : " Tammam eshta il mnbhat ahy "
+        Alarm.showAlarm(this);
+    }
+
+    @Override
+    public void onAlarmDeleteSucceeded() {
+
     }
 
     @Override

@@ -32,13 +32,13 @@ public class NetworkUtils implements CommunicationInterfaces.AnalyzerNetworkUtil
     /*private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer=new
             IntentAnalyzerAndRecognizer(this);*/
     private CommunicationInterfaces.AnalyzerNetworkUtilsInterface
-            analyzerNetworkUtilsInterface=new IntentAnalyzerAndRecognizer();
+            analyzerNetworkUtilsInterface;
 
-    /*NetworkUtils(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
+    public NetworkUtils(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
             this.analyzerNetworkUtilsInterface=analyzerNetworkUtilsInterface;
-    }*/
+            new IntentAnalyzerAndRecognizer(this);
+    }
 
-    NetworkUtils() {}
     @Override
     public void toNetworkUtils(String message) {
         Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=19/6/2018&q="+message,
@@ -60,13 +60,12 @@ public class NetworkUtils implements CommunicationInterfaces.AnalyzerNetworkUtil
                     }
                 }else {
                         analyzerNetworkUtilsInterface.toAnalyzerFailedResponse("Response was not successful");
-                    //Toast.makeText(getApplicationContext(),"Response is not successful",Toast.LENGTH_LONG).show();
                 }
             }
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                analyzerNetworkUtilsInterface.toAnalyzerFailedResponse("No response");
-                //Toast.makeText(getApplicationContext(),"Call is not successful",Toast.LENGTH_LONG).show();
+                analyzerNetworkUtilsInterface.toAnalyzerFailedResponse("No response ," +
+                        " probably a bad network connection , try again please .");
             }
         });
     }
