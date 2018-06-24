@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="set_alarm_failed">Didn\'t set the alarm , you probably set the alarm in a time not within 24 hours</string>
 </resources>

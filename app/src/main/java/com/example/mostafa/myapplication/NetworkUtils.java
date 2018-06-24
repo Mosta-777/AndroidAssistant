@@ -2,6 +2,7 @@ package com.example.mostafa.myapplication;
 
 import android.support.annotation.NonNull;
 
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.service.UserClient;
 

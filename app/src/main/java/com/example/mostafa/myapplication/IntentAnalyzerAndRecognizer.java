@@ -23,7 +23,9 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String ALARM_DELETE_INTENT_TYPE_ENTITY="alarm_delete";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
-    private static final double CONFIDENCE_THRESHOLD = 0.65 ;
+    private static final double CONFIDENCE_THRESHOLD = 0.8 ;
+    private static final String FLASH_ON_INTENT_TYPE_ENTITY = "flash_on";
+    private static final String FLASH_OFF_INTENT_TYPE_ENTITY = "flash_off";
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();
@@ -32,16 +34,19 @@ public class IntentAnalyzerAndRecognizer implements
             mainActivityAndAnalyzerInterface;
     private CommunicationInterfaces.AnalyzerNetworkUtilsInterface
             analyzerNetworkUtilsInterface;
+    private Alarm alarm;
+    private String theIntentRequestingData;
 
     public IntentAnalyzerAndRecognizer(CommunicationInterfaces.MainActivityFunctionalityClassesInterface communicationInterface,
                                        ArrayList<String> whatWasHeardFromVoiceRecognizer){
         mainActivityAndAnalyzerInterface=communicationInterface;
-        analyzeAndRealize(whatWasHeardFromVoiceRecognizer);
+        analyzeAndRealize(whatWasHeardFromVoiceRecognizer,null);
     }
     IntentAnalyzerAndRecognizer(CommunicationInterfaces.AnalyzerNetworkUtilsInterface analyzerNetworkUtilsInterface){
         this.analyzerNetworkUtilsInterface=analyzerNetworkUtilsInterface;
     }
-    public void analyzeAndRealize(ArrayList<String> whatWasHeardFromVoiceRecognizer){
+    public void analyzeAndRealize(ArrayList<String> whatWasHeardFromVoiceRecognizer,String knownIntent){
+        theIntentRequestingData=knownIntent;
         allPossibleStringsUserHasSaid=whatWasHeardFromVoiceRecognizer;
         sentences.clear();
         votingMap.clear();
@@ -54,22 +59,27 @@ public class IntentAnalyzerAndRecognizer implements
         sentences.add(receivedEntities);
         // We look for every major entity ( Intent ).
         // We check if the response contains an intent entity .
-        int indexOfIntentEntity = containsEntity(JSONUtils.ENTITY_INTENT_KEY, receivedEntities);
-        isAValidIntent(indexOfIntentEntity, receivedEntities);
-        if (pointer <= allPossibleStringsUserHasSaid.size()-1) {
-            analyzerNetworkUtilsInterface.toNetworkUtils(allPossibleStringsUserHasSaid.get(pointer++));
-        }else {
-            pointer=0;
-            Log.e(TAG, "Voting ended");
-            // Check the voting of each intent in each sentence , the one with the biggest votes , the
-            // highest number of data entities shall be taken .
-            // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
-            // with the intent got the highest votes and contains the highest number of data entities .
-            HashMap.Entry<String,Vote> winningEntry=getTheWinnerEntry();
-            Vote theWinnerVote=winningEntry.getValue();String winningIntent=winningEntry.getKey();
-            ArrayList<ArrayList<Entity>> theWinningSentences=theWinnerVote.getTheSentencesVoted();
-            goToTheAppropriateFunctionalityClass(winningIntent,theWinningSentences);
-        }
+            int indexOfIntentEntity = containsEntity(JSONUtils.ENTITY_INTENT_KEY, receivedEntities);
+            if (theIntentRequestingData==null) isAValidIntent(indexOfIntentEntity, receivedEntities);
+            if (pointer <= allPossibleStringsUserHasSaid.size() - 1) {
+                analyzerNetworkUtilsInterface.toNetworkUtils(allPossibleStringsUserHasSaid.get(pointer++));
+            } else {
+                pointer = 0;
+                Log.e(TAG, "Voting ended");
+                // Check the voting of each intent in each sentence , the one with the biggest votes , the
+                // highest number of data entities shall be taken .
+                // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
+                // with the intent got the highest votes and contains the highest number of data entities .
+                if (theIntentRequestingData==null) {
+                    HashMap.Entry<String, Vote> winningEntry = getTheWinnerEntry();
+                    Vote theWinnerVote = winningEntry.getValue();
+                    String winningIntent = winningEntry.getKey();
+                    ArrayList<ArrayList<Entity>> theWinningSentences = theWinnerVote.getTheSentencesVoted();
+                    goToTheAppropriateFunctionalityClass(winningIntent, theWinningSentences);
+                }else if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY))
+                    new Alarm(this,sentences);
+
+            }
     }
     @Override
     public void toAnalyzerFailedResponse(String failingMessage) {
@@ -78,11 +88,20 @@ public class IntentAnalyzerAndRecognizer implements
     private void goToTheAppropriateFunctionalityClass(String winningIntent,
                                                              ArrayList<ArrayList<Entity>> theWinningSentences) {
         // Go to the alarm class with the winning sentences
-        if (winningIntent.equals(ALARM_SET_INTENT_TYPE_ENTITY) ||
-                    winningIntent.equals(ALARM_SHOW_INTENT_TYPE_ENTITY) ||
-                    winningIntent.equals(ALARM_DELETE_INTENT_TYPE_ENTITY)) {
-            new Alarm(this,theWinningSentences);
+        switch (winningIntent) {
+            case ALARM_SET_INTENT_TYPE_ENTITY:
+            case ALARM_SHOW_INTENT_TYPE_ENTITY:
+            case ALARM_DELETE_INTENT_TYPE_ENTITY:
+                alarm = new Alarm(this, theWinningSentences);
+                break;
+            case FLASH_ON_INTENT_TYPE_ENTITY:
+                mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");
+                break;
+            case FLASH_OFF_INTENT_TYPE_ENTITY:
+                mainActivityAndAnalyzerInterface.onFlashLightOff("Closing the flashlight ...");
+                break;
         }
+
     }
 
 
@@ -157,15 +176,25 @@ public class IntentAnalyzerAndRecognizer implements
         return false;
     }
     @Override
-    public void onAlarmSetSucceeded() {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded();}
-    @Override public void onAlarmSetRequestingData() {mainActivityAndAnalyzerInterface.onAlarmSetRequestingData();}
-    @Override public void onAlarmShowSucceeded() {
-        mainActivityAndAnalyzerInterface.onAlarmShowSucceeded();
-    }
-    @Override public void onAlarmDeleteSucceeded() { mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded();}
+    public void onAlarmSetSucceeded(String dateTime) {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded(dateTime);}
+    @Override public void onAlarmSetRequestingData(String message) {
+        mainActivityAndAnalyzerInterface.onAlarmSetRequestingData(message);}
+    @Override public void onAlarmShowSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmShowSucceeded(message);}
+    @Override public void onAlarmDeleteSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded(message);}
     @Override public void onGettingWitResponseFailed(String failingMessage) {
         mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);
     }
+
+    @Override
+    public void onFlashLightOn(String message) {
+
+    }
+
+    @Override
+    public void onFlashLightOff(String message) {
+
+    }
+
     /*static void handleFetchedEntities(ArrayList<Entity> receivedEntities) {
         sentences.add(receivedEntities);
         // We look for every major entity ( Intent ).

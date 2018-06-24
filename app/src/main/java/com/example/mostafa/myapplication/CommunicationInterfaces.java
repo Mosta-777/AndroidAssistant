@@ -11,12 +11,14 @@ import java.util.ArrayList;
 public interface CommunicationInterfaces {
 
     interface MainActivityFunctionalityClassesInterface {
-        void onAlarmSetSucceeded();
+        void onAlarmSetSucceeded(String dateTime);
         //No passed data for the alarm as we will ask what time in all cases
-        void onAlarmSetRequestingData();
-        void onAlarmShowSucceeded();
-        void onAlarmDeleteSucceeded();
+        void onAlarmSetRequestingData(String missingDataString);
+        void onAlarmShowSucceeded(String message);
+        void onAlarmDeleteSucceeded(String message);
         void onGettingWitResponseFailed(String failingMessage);
+        void onFlashLightOn(String message);
+        void onFlashLightOff(String message);
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

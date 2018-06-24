@@ -10,7 +10,10 @@ import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.POJOS.Entity;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Mostafa on 6/19/2018.
@@ -20,6 +23,7 @@ public class Alarm {
 
     private ArrayList<ArrayList<Entity>> alarmSentences;
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerinterface;
+    private String dateTime;
 
     public Alarm(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
                  ArrayList<ArrayList<Entity>> theWinningSentences) {
@@ -29,8 +33,8 @@ public class Alarm {
         // either one datetime entity or one duration entity .
         int i=isThereAnAlarmShowOrDelete(alarmSentences);
         switch (i) {
-            case 0 : analyzerinterface.onAlarmShowSucceeded();break;
-            case 1 : analyzerinterface.onAlarmDeleteSucceeded();break;
+            case 0 : analyzerinterface.onAlarmShowSucceeded("Tamam eshta il mnbhat ahy");break;
+            case 1 : analyzerinterface.onAlarmDeleteSucceeded("Tamam t2dar tms7 il alarmn mn il app");break;
             case 2 : determineTheBestSentenceForAlarmSet(alarmSentences);break;
         }
     }
@@ -65,13 +69,15 @@ public class Alarm {
                     .containsEntity(IntentAnalyzerAndRecognizer.DURATION_ENTITY,selectedSentence);
             if (dateTimeEntityIndex!=-1){
                 // set the alarm using date and time
-                Log.d("TAG","Setting time using datetime");
+                dateTime = (String) selectedSentence.get(dateTimeEntityIndex).getValue();
+                Log.d("TAG","Setting time using datetime "+dateTime);
+                analyzerinterface.onAlarmSetSucceeded(dateTime);
             }else if (durationEntityIndex!=-1){
                 Log.d("TAG","Setting time using duration");
             }
         }else {
             // This means that none of the sentences contains one and only one datetime or duration .
-            analyzerinterface.onAlarmSetRequestingData();
+            analyzerinterface.onAlarmSetRequestingData("tamam , azboto il sa3a kam ?");
         }
 
     }
@@ -91,6 +97,34 @@ public class Alarm {
         //Toast.makeText(context,"Showing the alarms ..... ",Toast.LENGTH_LONG).show();
         Intent openNewAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
         context.startActivity(openNewAlarm);
+    }
+    public static boolean setAlarm(Context context,String date)
+    {
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        Date tomorrowDate = calendar.getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDateFormatted = dateFormat.format(currentDate);
+        String tomorrowDateFormatted = dateFormat.format(tomorrowDate);
+
+        if((currentDateFormatted.substring(0, 4).equals(date.substring(0,4))) &&
+                (currentDateFormatted.substring(5,7).equals(date.substring(5,7)))){
+            if(currentDateFormatted.substring(8,10).equals(date.substring(8,10)) ||
+                    tomorrowDateFormatted.substring(8,10).equals(date.substring(8,10))) {
+                Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+                i.putExtra(AlarmClock.EXTRA_HOUR, Integer.parseInt(date.substring(11,13)));
+                i.putExtra(AlarmClock.EXTRA_MINUTES, Integer.parseInt(date.substring(14,16)));
+                i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+                context.startActivity(i);
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+
     }
 
 
