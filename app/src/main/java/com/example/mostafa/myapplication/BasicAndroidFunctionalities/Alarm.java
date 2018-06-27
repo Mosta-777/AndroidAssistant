@@ -21,21 +21,19 @@ import java.util.Date;
 
 public class Alarm {
 
-    private ArrayList<ArrayList<Entity>> alarmSentences;
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerinterface;
     private String dateTime;
 
     public Alarm(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
                  ArrayList<ArrayList<Entity>> theWinningSentences) {
-        alarmSentences=theWinningSentences;
         analyzerinterface=intentAnalyzerAndRecognizer;
         // We then choose the best sentence , the sentence containing
         // either one datetime entity or one duration entity .
-        int i=isThereAnAlarmShowOrDelete(alarmSentences);
+        int i=isThereAnAlarmShowOrDelete(theWinningSentences);
         switch (i) {
             case 0 : analyzerinterface.onAlarmShowSucceeded("Tamam eshta il mnbhat ahy");break;
             case 1 : analyzerinterface.onAlarmDeleteSucceeded("Tamam t2dar tms7 il alarmn mn il app");break;
-            case 2 : determineTheBestSentenceForAlarmSet(alarmSentences);break;
+            case 2 : determineTheBestSentenceForAlarmSet(theWinningSentences);break;
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.mostafa.myapplication;
 import android.util.Log;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
 import java.util.ArrayList;
@@ -21,11 +22,13 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String ALARM_SET_INTENT_TYPE_ENTITY="alarm_set";
     public static final String ALARM_SHOW_INTENT_TYPE_ENTITY="alarm_show";
     public static final String ALARM_DELETE_INTENT_TYPE_ENTITY="alarm_delete";
-    public static final String CANCEL_INTENT_TYPE_ENTITY="cancel";
-    public  static final String DATETIME_ENTITY="datetime";
-    public  static final String DURATION_ENTITY="duration";
     private static final String FLASH_ON_INTENT_TYPE_ENTITY = "flash_on";
     private static final String FLASH_OFF_INTENT_TYPE_ENTITY = "flash_off";
+    private static final String CANCEL_INTENT_TYPE_ENTITY="cancel";
+    private static final String REMINDER_INTENT_TYPE_ENTITY="reminder";
+    public static final String CALL_LOG_SHOW_INTENT_TYPE_ENTITY="call_log_show";
+    public  static final String DATETIME_ENTITY="datetime";
+    public  static final String DURATION_ENTITY="duration";
     private static final double CONFIDENCE_THRESHOLD = 0.8 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
@@ -35,7 +38,6 @@ public class IntentAnalyzerAndRecognizer implements
             mainActivityAndAnalyzerInterface;
     private CommunicationInterfaces.AnalyzerNetworkUtilsInterface
             analyzerNetworkUtilsInterface;
-    private Alarm alarm;
     private String theIntentRequestingData;
 
     public IntentAnalyzerAndRecognizer(CommunicationInterfaces.MainActivityFunctionalityClassesInterface communicationInterface,
@@ -96,6 +98,8 @@ public class IntentAnalyzerAndRecognizer implements
     private void giveDataToIntentRequestingData() {
         if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY))
             new Alarm(this, sentences);
+        if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
+            new Reminder(this,sentences);
     }
 
     @Override
@@ -109,13 +113,16 @@ public class IntentAnalyzerAndRecognizer implements
             case ALARM_SET_INTENT_TYPE_ENTITY:
             case ALARM_SHOW_INTENT_TYPE_ENTITY:
             case ALARM_DELETE_INTENT_TYPE_ENTITY:
-                alarm = new Alarm(this, theWinningSentences);
+                new Alarm(this, theWinningSentences);
                 break;
             case FLASH_ON_INTENT_TYPE_ENTITY:
                 mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");
                 break;
             case FLASH_OFF_INTENT_TYPE_ENTITY:
                 mainActivityAndAnalyzerInterface.onFlashLightOff("Closing the flashlight ...");
+                break;
+            case REMINDER_INTENT_TYPE_ENTITY:
+                new Reminder(this,theWinningSentences);
                 break;
         }
 
