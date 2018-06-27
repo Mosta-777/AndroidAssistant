@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onAlarmSetSucceeded(String dateTime) {
         if (!Alarm.setAlarm(this,dateTime))
             Toast.makeText(this,getResources().getString(R.string.set_alarm_failed),Toast.LENGTH_LONG).show();
+        else ;// TODO for voice over : " Tamam eshta il mnbh itzabat "
     }
 
     @Override
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onAlarmDeleteSucceeded(String message) {
+        // TODO for voice over : " T2dar tms7o mn il app "
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         Alarm.showAlarm(this);
     }
@@ -131,17 +133,39 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOn())
+            // TODO voice over : " Tamam " or " Eshta "
             Toast.makeText(this,"Opened flashlight successfully .",Toast.LENGTH_SHORT).show();
         else Toast.makeText(this,"Couldn't open the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFlashLightOff(String message) {
+        // TODO voice over : " Tamam " or " Eshta "
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOff())
             Toast.makeText(this,"Closed flashlight successfully .",Toast.LENGTH_SHORT).show();
         else Toast.makeText(this,"Couldn't close the flashlight.",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onCancelling(String intentToCancel) {
+        // TODO voice over : " Tamam cancelt "
+        Toast.makeText(this," Tamam cancelt "+intentToCancel,Toast.LENGTH_LONG).show();
+        // if the intent to cancel stored data in the shared pref. , delete it
+        // else do nothing
+    }
+
+    @Override
+    public void onCancellingWhat(String message) {
+        // TODO voice over : " a cancel eh mfeesh 7aga "
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onFailingToUnderstand(String message) {
+        // TODO voice over : " msh fahm inta asdk eh m3lsh " or " deh results il web "
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -156,8 +180,4 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
     }
-
-
-
-
 }

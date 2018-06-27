@@ -19,6 +19,9 @@ public interface CommunicationInterfaces {
         void onGettingWitResponseFailed(String failingMessage);
         void onFlashLightOn(String message);
         void onFlashLightOff(String message);
+        void onCancelling(String intentToCancel);
+        void onCancellingWhat(String message);
+        void onFailingToUnderstand(String message);
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

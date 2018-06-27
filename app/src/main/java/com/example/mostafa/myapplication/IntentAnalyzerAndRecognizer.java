@@ -21,11 +21,12 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String ALARM_SET_INTENT_TYPE_ENTITY="alarm_set";
     public static final String ALARM_SHOW_INTENT_TYPE_ENTITY="alarm_show";
     public static final String ALARM_DELETE_INTENT_TYPE_ENTITY="alarm_delete";
+    public static final String CANCEL_INTENT_TYPE_ENTITY="cancel";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
-    private static final double CONFIDENCE_THRESHOLD = 0.8 ;
     private static final String FLASH_ON_INTENT_TYPE_ENTITY = "flash_on";
     private static final String FLASH_OFF_INTENT_TYPE_ENTITY = "flash_off";
+    private static final double CONFIDENCE_THRESHOLD = 0.8 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();
@@ -52,7 +53,6 @@ public class IntentAnalyzerAndRecognizer implements
         votingMap.clear();
         analyzerNetworkUtilsInterface = new NetworkUtils(this);
         analyzerNetworkUtilsInterface.toNetworkUtils(whatWasHeardFromVoiceRecognizer.get(pointer++));
-        //NetworkUtils.getResponse(whatWasHeardFromVoiceRecognizer.get(pointer++));
     }
     @Override
     public void toAnalyzer(ArrayList<Entity> receivedEntities) {
@@ -60,7 +60,7 @@ public class IntentAnalyzerAndRecognizer implements
         // We look for every major entity ( Intent ).
         // We check if the response contains an intent entity .
             int indexOfIntentEntity = containsEntity(JSONUtils.ENTITY_INTENT_KEY, receivedEntities);
-            if (theIntentRequestingData==null) isAValidIntent(indexOfIntentEntity, receivedEntities);
+            isAValidIntent(indexOfIntentEntity, receivedEntities);
             if (pointer <= allPossibleStringsUserHasSaid.size() - 1) {
                 analyzerNetworkUtilsInterface.toNetworkUtils(allPossibleStringsUserHasSaid.get(pointer++));
             } else {
@@ -70,17 +70,34 @@ public class IntentAnalyzerAndRecognizer implements
                 // highest number of data entities shall be taken .
                 // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
                 // with the intent got the highest votes and contains the highest number of data entities .
-                if (theIntentRequestingData==null) {
-                    HashMap.Entry<String, Vote> winningEntry = getTheWinnerEntry();
+                HashMap.Entry<String, Vote> winningEntry = getTheWinnerEntry();
+
+                if (winningEntry != null) { // The sentences were meaningful ( one of them at least )
                     Vote theWinnerVote = winningEntry.getValue();
                     String winningIntent = winningEntry.getKey();
-                    ArrayList<ArrayList<Entity>> theWinningSentences = theWinnerVote.getTheSentencesVoted();
-                    goToTheAppropriateFunctionalityClass(winningIntent, theWinningSentences);
-                }else if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY))
-                    new Alarm(this,sentences);
-
+                    if (theIntentRequestingData == null) {
+                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY))
+                            mainActivityAndAnalyzerInterface.onCancellingWhat("a cancel eh ? , mfeesh 7aga");
+                        ArrayList<ArrayList<Entity>> theWinningSentences = theWinnerVote.getTheSentencesVoted();
+                        goToTheAppropriateFunctionalityClass(winningIntent, theWinningSentences);
+                    } else {
+                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY))
+                            mainActivityAndAnalyzerInterface.onCancelling(theIntentRequestingData);
+                        else giveDataToIntentRequestingData();
+                    }
+                }else { // The sentences had no meaning ( not a single one had an intent or crossed the confidence threshold )
+                    if (theIntentRequestingData == null)
+                        mainActivityAndAnalyzerInterface.onFailingToUnderstand("msh fahm asdak ?");
+                    else giveDataToIntentRequestingData();
+                }
             }
     }
+
+    private void giveDataToIntentRequestingData() {
+        if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY))
+            new Alarm(this, sentences);
+    }
+
     @Override
     public void toAnalyzerFailedResponse(String failingMessage) {
         mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);
@@ -157,9 +174,10 @@ public class IntentAnalyzerAndRecognizer implements
             existingSentences.add(currentSentence);
             votingMap.put(nameOfIntentToCheck,new Vote(1,existingSentences));
         }
-        return nameOfIntentToCheck.equals(ALARM_SET_INTENT_TYPE_ENTITY) ||
-                (nameOfIntentToCheck.equals(ALARM_DELETE_INTENT_TYPE_ENTITY) ||
-                        (nameOfIntentToCheck.equals(ALARM_SHOW_INTENT_TYPE_ENTITY)));
+        /*return nameOfIntentToCheck.equals(ALARM_SET_INTENT_TYPE_ENTITY) ||
+                nameOfIntentToCheck.equals(ALARM_DELETE_INTENT_TYPE_ENTITY) ||
+                        nameOfIntentToCheck.equals(ALARM_SHOW_INTENT_TYPE_ENTITY);*/
+        return true;
     }
 
     public static int containsEntity(String mainEntityToLookFor, ArrayList<Entity> receivedEntities) {
@@ -175,47 +193,22 @@ public class IntentAnalyzerAndRecognizer implements
         }
         return false;
     }
-    @Override
-    public void onAlarmSetSucceeded(String dateTime) {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded(dateTime);}
-    @Override public void onAlarmSetRequestingData(String message) {
-        mainActivityAndAnalyzerInterface.onAlarmSetRequestingData(message);}
+
+
+
+
+    // Tube functions
+    @Override public void onAlarmSetSucceeded(String dateTime) {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded(dateTime);}
+    @Override public void onAlarmSetRequestingData(String message){mainActivityAndAnalyzerInterface.onAlarmSetRequestingData(message);}
     @Override public void onAlarmShowSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmShowSucceeded(message);}
     @Override public void onAlarmDeleteSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded(message);}
-    @Override public void onGettingWitResponseFailed(String failingMessage) {
-        mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);
-    }
+    @Override public void onGettingWitResponseFailed(String failingMessage){mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);}
 
-    @Override
-    public void onFlashLightOn(String message) {
-
-    }
-
-    @Override
-    public void onFlashLightOff(String message) {
-
-    }
-
-    /*static void handleFetchedEntities(ArrayList<Entity> receivedEntities) {
-        sentences.add(receivedEntities);
-        // We look for every major entity ( Intent ).
-        // We check if the response contains an intent entity .
-        int indexOfIntentEntity = containsEntity(JSONUtils.ENTITY_INTENT_KEY, receivedEntities);
-        isAValidIntent(indexOfIntentEntity, receivedEntities);
-        if (pointer <= allPossibleStringsUserHasSaid.size()-1) {
-            analyzerNetworkUtilsInterface.toNetworkUtils(whatWasHeardFromVoiceRecognizer.get(pointer++));
-            //NetworkUtils.getResponse(allPossibleStringsUserHasSaid.get(pointer++));
-        }else {
-            pointer=0;
-            Log.e(TAG, "Voting ended");
-            // Check the voting of each intent in each sentence , the one with the biggest votes , the
-            // highest number of data entities shall be taken .
-            // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
-            // with the intent got the highest votes and contains the highest number of data entities .
-            HashMap.Entry<String,Vote> winningEntry=getTheWinnerEntry();
-            Vote theWinnerVote=winningEntry.getValue();String winningIntent=winningEntry.getKey();
-            ArrayList<ArrayList<Entity>> theWinningSentences=theWinnerVote.getTheSentencesVoted();
-            goToTheAppropriateFunctionalityClass(winningIntent,theWinningSentences);
-        }
-    }*/
+    // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
+    @Override public void onFlashLightOn(String message) {}
+    @Override public void onFlashLightOff(String message) {}
     @Override public void toNetworkUtils(String message) {}
+    @Override public void onCancelling(String intentToCancel) {}
+    @Override public void onCancellingWhat(String message) {}
+    @Override public void onFailingToUnderstand(String message) {}
 }

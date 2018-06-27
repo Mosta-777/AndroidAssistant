@@ -73,6 +73,9 @@ public class Alarm {
                 Log.d("TAG","Setting time using datetime "+dateTime);
                 analyzerinterface.onAlarmSetSucceeded(dateTime);
             }else if (durationEntityIndex!=-1){
+                // TODO : 1- extract the duration value from th entity
+                // 2- convert it into datetime format
+                // 3- call analyzerinterface.onAlarmSetSucceeded(converted_duration);
                 Log.d("TAG","Setting time using duration");
             }
         }else {
@@ -98,8 +101,7 @@ public class Alarm {
         Intent openNewAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
         context.startActivity(openNewAlarm);
     }
-    public static boolean setAlarm(Context context,String date)
-    {
+    public static boolean setAlarm(Context context,String date) {
         Calendar calendar = Calendar.getInstance();
         Date currentDate = calendar.getTime();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -107,7 +109,6 @@ public class Alarm {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String currentDateFormatted = dateFormat.format(currentDate);
         String tomorrowDateFormatted = dateFormat.format(tomorrowDate);
-
         if((currentDateFormatted.substring(0, 4).equals(date.substring(0,4))) &&
                 (currentDateFormatted.substring(5,7).equals(date.substring(5,7)))){
             if(currentDateFormatted.substring(8,10).equals(date.substring(8,10)) ||
@@ -119,13 +120,7 @@ public class Alarm {
                 context.startActivity(i);
                 return true;
             }
-            else
-                return false;
-        }
-        else
-            return false;
-
+            else return false;
+        } else return false;
     }
-
-
 }
