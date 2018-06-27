@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements
     public static final String token="EDM7POFMZLZ6H2OB253HNBAVYPBKW2RC";
     private final int REQUEST_DEFAULT = 1;
     private final int REQUEST_ALARM_DATA = 2;
+    private final int REQUEST_REMINDER_DATA = 3;
     public static final int CAMERA_REQUEST=200;
     private Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
@@ -88,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements
             intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this,results);
         }else if (requestCode==REQUEST_ALARM_DATA && resultCode == RESULT_OK){
             intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
+        }
+        else if (requestCode==REQUEST_REMINDER_DATA && resultCode==RESULT_OK){
+            intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
         }
 
         super.onActivityResult(requestCode, resultCode, data);

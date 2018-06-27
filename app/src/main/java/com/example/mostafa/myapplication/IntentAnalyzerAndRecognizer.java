@@ -25,11 +25,12 @@ public class IntentAnalyzerAndRecognizer implements
     private static final String FLASH_ON_INTENT_TYPE_ENTITY = "flash_on";
     private static final String FLASH_OFF_INTENT_TYPE_ENTITY = "flash_off";
     private static final String CANCEL_INTENT_TYPE_ENTITY="cancel";
-    private static final String REMINDER_INTENT_TYPE_ENTITY="reminder";
+    public static final String REMINDER_INTENT_TYPE_ENTITY="reminder";
+    public static final String REMINDER_FREE_TEXT = "reminder_free_text";
     public static final String CALL_LOG_SHOW_INTENT_TYPE_ENTITY="call_log_show";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
-    private static final double CONFIDENCE_THRESHOLD = 0.8 ;
+    private static final double CONFIDENCE_THRESHOLD = 0.5 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();

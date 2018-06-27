@@ -71,9 +71,11 @@ public class Alarm {
                 Log.d("TAG","Setting time using datetime "+dateTime);
                 analyzerinterface.onAlarmSetSucceeded(dateTime);
             }else if (durationEntityIndex!=-1){
-                // TODO : 1- extract the duration value from th entity
-                // 2- convert it into datetime format
-                // 3- call analyzerinterface.onAlarmSetSucceeded(converted_duration);
+                //get duration value
+                int durationValue = (int) selectedSentence.get(durationEntityIndex).getValue();
+                //get current dateandtime then add the duration
+                String alarmValue = durationToDateTime(durationValue);
+                analyzerinterface.onAlarmSetSucceeded(alarmValue);
                 Log.d("TAG","Setting time using duration");
             }
         }else {
@@ -120,5 +122,14 @@ public class Alarm {
             }
             else return false;
         } else return false;
+    }
+
+    private static String durationToDateTime(int durationValue)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR_OF_DAY, durationValue);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String alarmValue = dateFormat.format(calendar.getTime());
+        return alarmValue;
     }
 }
