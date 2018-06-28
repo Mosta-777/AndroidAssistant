@@ -1,5 +1,7 @@
 package com.example.mostafa.myapplication;
 
+import android.util.Log;
+
 import com.example.mostafa.myapplication.POJOS.Entity;
 
 import org.json.JSONArray;
@@ -27,8 +29,10 @@ public class JSONUtils {
     public static ArrayList<Entity> getEntitesFromJSONResponse(String witResponse)
             throws JSONException {
         JSONObject responseJSONObject=new JSONObject(witResponse.trim());
+        String originalText = responseJSONObject.getString(TEXT_KEY);
         JSONObject entitiesJSONObject=responseJSONObject.getJSONObject(ENTITY_KEY);
         ArrayList<Entity> returnedArrayList = new ArrayList<>();
+        returnedArrayList.add(new Entity("text", 1, originalText));
         Iterator<?> keys=entitiesJSONObject.keys();
         while (keys.hasNext()){
             //The order of the entity arrays doesn't matter

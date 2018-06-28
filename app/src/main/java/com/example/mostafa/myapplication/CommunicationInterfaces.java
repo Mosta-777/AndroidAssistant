@@ -22,6 +22,8 @@ public interface CommunicationInterfaces {
         void onCancelling(String intentToCancel);
         void onCancellingWhat(String message);
         void onFailingToUnderstand(String message);
+        void onReminderSucceeded(String dateTime, String reminderFreeText);
+        void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists);
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

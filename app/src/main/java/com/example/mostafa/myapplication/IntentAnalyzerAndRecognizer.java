@@ -211,6 +211,8 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onAlarmShowSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmShowSucceeded(message);}
     @Override public void onAlarmDeleteSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded(message);}
     @Override public void onGettingWitResponseFailed(String failingMessage){mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);}
+    @Override public void onReminderSucceeded(String dateTime, String reminderFreeText) {mainActivityAndAnalyzerInterface.onReminderSucceeded(dateTime, reminderFreeText);}
+    @Override public void onReminderRequestingData(boolean dateTime, boolean reminderFreeTextExists) {mainActivityAndAnalyzerInterface.onReminderRequestingData(dateTime, reminderFreeTextExists);}
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
     @Override public void onFlashLightOn(String message) {}

@@ -84,7 +84,7 @@ public class Alarm {
         }
 
     }
-    private boolean isThereOnlyOne(String entityName,ArrayList<Entity> sentence){
+    public static boolean isThereOnlyOne(String entityName,ArrayList<Entity> sentence){
         int counter=0;
         for (int i=0;i<sentence.size();i++){
             if (sentence.get(i).getName().equals(entityName)){

@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Flashlight;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.R;
@@ -183,5 +184,26 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onReminderSucceeded(String dateTime, String reminderFreeText) {
+        if(Reminder.setReminder(MainActivity.this, dateTime, reminderFreeText))
+            Toast.makeText(this,"Tamam reminder is set at  " + reminderFreeText+ "   at  " + dateTime,Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this,"Fe moshkla",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists) {
+        String missingData = null;
+        if(dateTimeExists&&reminderFreeTextExists)
+            missingData = "afakarak be eh wl sa3a kam ?";
+        else if(dateTimeExists)
+            missingData = "tmam, afakar beh emta ?";
+        else if(reminderFreeTextExists)
+            missingData = "tamam, afakrak b eh ?";
+        Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
+        startActivityForResult(voiceRecognizer,REQUEST_REMINDER_DATA);
     }
 }
