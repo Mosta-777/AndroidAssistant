@@ -6,12 +6,10 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
@@ -22,16 +20,9 @@ import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.R;
 import com.example.mostafa.myapplication.service.UserClient;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements
@@ -157,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements
     public void onCancelling(String intentToCancel) {
         // TODO voice over : " Tamam cancelt "
         Toast.makeText(this," Tamam cancelt "+intentToCancel,Toast.LENGTH_LONG).show();
+        if(intentToCancel.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
+            Reminder.resetReminder();
         // if the intent to cancel stored data in the shared pref. , delete it
         // else do nothing
     }
@@ -197,9 +190,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists) {
         String missingData = null;
-        if(dateTimeExists&&reminderFreeTextExists)
-            missingData = "afakarak be eh wl sa3a kam ?";
-        else if(dateTimeExists)
+        if(dateTimeExists)
             missingData = "tmam, afakar beh emta ?";
         else if(reminderFreeTextExists)
             missingData = "tamam, afakrak b eh ?";
