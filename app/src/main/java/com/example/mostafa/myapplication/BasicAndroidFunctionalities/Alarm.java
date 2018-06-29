@@ -127,7 +127,7 @@ public class Alarm {
         } else return false;
     }
 
-    private static String durationToDateTime(int durationValue)
+    public static String durationToDateTime(int durationValue)
     {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR_OF_DAY, durationValue);
