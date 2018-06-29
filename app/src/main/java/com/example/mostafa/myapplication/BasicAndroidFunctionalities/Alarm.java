@@ -98,8 +98,11 @@ public class Alarm {
 
     public static void showAlarm(Context context){
         //Toast.makeText(context,"Showing the alarms ..... ",Toast.LENGTH_LONG).show();
-        Intent openNewAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
-        context.startActivity(openNewAlarm);
+        Intent openNewAlarm = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            openNewAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+            context.startActivity(openNewAlarm);
+        }
     }
     public static boolean setAlarm(Context context,String date) {
         Calendar calendar = Calendar.getInstance();

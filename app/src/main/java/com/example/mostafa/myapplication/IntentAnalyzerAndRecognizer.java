@@ -3,6 +3,7 @@ package com.example.mostafa.myapplication;
 import android.util.Log;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
@@ -28,9 +29,14 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String REMINDER_INTENT_TYPE_ENTITY="reminder";
     public static final String REMINDER_FREE_TEXT = "reminder_free_text";
     public static final String CALL_LOG_SHOW_INTENT_TYPE_ENTITY="call_log_show";
+    public static final String CONTACTS_SHOW_INTENT_TYPE_ENTITY="contacts_show";
+    public static final String CONTACTS_CALL_INTENT_TYPE_INTENTY="contacts_call";
+    public static final String PHONE_NUMBER_ENTITY = "phone_number";
+    public static final String CONTACT_NAME_ENTITY = "contact_name";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
-    private static final double CONFIDENCE_THRESHOLD = 0.5 ;
+    public static final String TEXT_ENTITY="text";
+    public static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();
@@ -97,10 +103,17 @@ public class IntentAnalyzerAndRecognizer implements
     }
 
     private void giveDataToIntentRequestingData() {
-        if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY))
-            new Alarm(this, sentences);
-        if (theIntentRequestingData.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
-            new Reminder(this,sentences);
+        switch (theIntentRequestingData) {
+            case IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY:
+                new Alarm(this, sentences);
+                break;
+            case IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY:
+                new Reminder(this, sentences);
+                break;
+            case IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_INTENTY:
+                new Calling(this, sentences, Calling.MODE_REQUESTING_DATA);
+                break;
+        }
     }
 
     @Override
@@ -125,6 +138,10 @@ public class IntentAnalyzerAndRecognizer implements
             case REMINDER_INTENT_TYPE_ENTITY:
                 new Reminder(this,theWinningSentences);
                 break;
+            case CALL_LOG_SHOW_INTENT_TYPE_ENTITY:
+            case CONTACTS_CALL_INTENT_TYPE_INTENTY:
+            case CONTACTS_SHOW_INTENT_TYPE_ENTITY :
+                new Calling(this,theWinningSentences,Calling.MODE_DEFAULT);
         }
 
     }
@@ -194,6 +211,13 @@ public class IntentAnalyzerAndRecognizer implements
         }
         return -1;
     }
+    public static int containsEntitySentenceVersion(String entityToLookFor,ArrayList<ArrayList<Entity>> sentences){
+        for (int i = 0; i < sentences.size(); i++) {
+            if (IntentAnalyzerAndRecognizer
+                    .containsEntity(entityToLookFor, sentences.get(i))!=-1) return i;
+        }
+        return -1;
+    }
     public static boolean containsIntentValue(String intentValue,ArrayList<Entity> receivedEntities){
         for (int i=0;i<receivedEntities.size();i++){
             if (receivedEntities.get(i).getName().equals(JSONUtils.ENTITY_INTENT_KEY) &&
@@ -211,8 +235,15 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onAlarmShowSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmShowSucceeded(message);}
     @Override public void onAlarmDeleteSucceeded(String message) {mainActivityAndAnalyzerInterface.onAlarmDeleteSucceeded(message);}
     @Override public void onGettingWitResponseFailed(String failingMessage){mainActivityAndAnalyzerInterface.onGettingWitResponseFailed(failingMessage);}
+    @Override public void onShowCallLog(String message) {mainActivityAndAnalyzerInterface.onShowCallLog(message);}
+    @Override public void onShowContacts(String message) {mainActivityAndAnalyzerInterface.onShowContacts(message);}
     @Override public void onReminderSucceeded(String dateTime, String reminderFreeText) {mainActivityAndAnalyzerInterface.onReminderSucceeded(dateTime, reminderFreeText);}
     @Override public void onReminderRequestingData(boolean dateTime, boolean reminderFreeTextExists) {mainActivityAndAnalyzerInterface.onReminderRequestingData(dateTime, reminderFreeTextExists);}
+    @Override public void onCallingNumberSucceeded(String phoneNumber) {mainActivityAndAnalyzerInterface.onCallingNumberSucceeded(phoneNumber);}
+    @Override public void onCallingByName(String name) {mainActivityAndAnalyzerInterface.onCallingByName(name);}
+    @Override public void onCallingContactNotFound(String message) {mainActivityAndAnalyzerInterface.onCallingContactNotFound(message);}
+    @Override public void onCallingNumberRequestingData(String message) {mainActivityAndAnalyzerInterface.onCallingNumberRequestingData(message);}
+
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
     @Override public void onFlashLightOn(String message) {}
@@ -221,4 +252,5 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onCancelling(String intentToCancel) {}
     @Override public void onCancellingWhat(String message) {}
     @Override public void onFailingToUnderstand(String message) {}
+
 }

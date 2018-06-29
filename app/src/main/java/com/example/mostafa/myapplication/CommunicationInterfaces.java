@@ -22,8 +22,14 @@ public interface CommunicationInterfaces {
         void onCancelling(String intentToCancel);
         void onCancellingWhat(String message);
         void onFailingToUnderstand(String message);
+        void onShowCallLog(String message);
+        void onShowContacts(String message);
         void onReminderSucceeded(String dateTime, String reminderFreeText);
         void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists);
+        void onCallingNumberSucceeded(String phoneNumber);
+        void onCallingNumberRequestingData(String message);
+        void onCallingByName(String name);
+        void onCallingContactNotFound(String message);
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

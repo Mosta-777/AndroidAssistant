@@ -6,15 +6,14 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Flashlight;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
@@ -22,16 +21,9 @@ import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.R;
 import com.example.mostafa.myapplication.service.UserClient;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements
@@ -42,7 +34,10 @@ public class MainActivity extends AppCompatActivity implements
     private final int REQUEST_DEFAULT = 1;
     private final int REQUEST_ALARM_DATA = 2;
     private final int REQUEST_REMINDER_DATA = 3;
+    private static final int REQUEST_PHONE_NUMBER = 4;
+    public static final int CALL_PHONE_REQUEST = 100;
     public static final int CAMERA_REQUEST=200;
+    public static final int READ_CONTACTS_REQUEST = 300;
     private Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
 
@@ -93,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         else if (requestCode==REQUEST_REMINDER_DATA && resultCode==RESULT_OK){
             intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
+        }else if (requestCode==REQUEST_PHONE_NUMBER && resultCode==RESULT_OK){
+            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_INTENTY);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -174,6 +171,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onShowCallLog(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Calling.showCallLog(this);
+    }
+
+    @Override
+    public void onShowContacts(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Calling.showContacts(this);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch(requestCode) {
             case CAMERA_REQUEST :
@@ -183,6 +192,18 @@ public class MainActivity extends AppCompatActivity implements
                     Toast.makeText(MainActivity.this, "Permission Denied for the Camera", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case CALL_PHONE_REQUEST:
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for the phone call", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for the phone call", Toast.LENGTH_SHORT).show();
+                }
+            case READ_CONTACTS_REQUEST :
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for reading contacts", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for reading contacts", Toast.LENGTH_SHORT).show();
+                }
         }
     }
 
@@ -205,5 +226,28 @@ public class MainActivity extends AppCompatActivity implements
             missingData = "tamam, afakrak b eh ?";
         Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
         startActivityForResult(voiceRecognizer,REQUEST_REMINDER_DATA);
+    }
+
+    @Override
+    public void onCallingNumberSucceeded(String phoneNumber) {
+        // TODO voice over : " tamam htsl dlw2ty "
+        Calling.call(this,phoneNumber);
+    }
+
+    @Override
+    public void onCallingNumberRequestingData(String message) {
+        // TODO voice over : " tamam aklm meen "
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        startActivityForResult(voiceRecognizer,REQUEST_PHONE_NUMBER);
+    }
+
+    @Override
+    public void onCallingByName(String name) {
+        Calling.callByName(this,name);
+    }
+
+    @Override
+    public void onCallingContactNotFound(String message) {
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 }

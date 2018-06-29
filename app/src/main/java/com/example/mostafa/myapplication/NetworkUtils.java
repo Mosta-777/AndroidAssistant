@@ -72,31 +72,4 @@ public class NetworkUtils implements CommunicationInterfaces.AnalyzerNetworkUtil
     }
     @Override public void toAnalyzer(ArrayList<Entity> entities) {}
     @Override public void toAnalyzerFailedResponse(String failingMessage) {}
-    /*public static void getResponse(String message){
-        Call<ResponseBody> call=userClient.getSecret("https://api.wit.ai/message?v=19/6/2018&q="+message,
-                " Bearer "+token);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                if (response.isSuccessful()){
-                    try {
-                        ArrayList<Entity> receivedEntities=JSONUtils.getEntitesFromJSONResponse(response.body().string());
-                        IntentAnalyzerAndRecognizer.handleFetchedEntities(receivedEntities);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }catch (NullPointerException e){
-                        e.printStackTrace();
-                    }
-                }else {
-                    //Toast.makeText(getApplicationContext(),"Response is not successful",Toast.LENGTH_LONG).show();
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                //Toast.makeText(getApplicationContext(),"Call is not successful",Toast.LENGTH_LONG).show();
-            }
-        });
-    }*/
 }
