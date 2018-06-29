@@ -1,6 +1,7 @@
 package com.example.mostafa.myapplication.BasicAndroidFunctionalities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.POJOS.Entity;
+import com.example.mostafa.myapplication.UIs.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -96,6 +98,9 @@ public class Reminder {
     }
 
     public static boolean setReminder(Context context, String reminderDateTime, String reminderFreeText) {
+
+
+
         int reminderYear = Integer.parseInt(reminderDateTime.substring(0, 4));
         int reminderMonth = Integer.parseInt(reminderDateTime.substring(5, 7));
         int reminderDay = Integer.parseInt(reminderDateTime.substring(8, 10));
@@ -117,8 +122,11 @@ public class Reminder {
         calEvent.put(CalendarContract.Events.HAS_ALARM, 1);
         calEvent.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_CALENDAR},
+                    MainActivity.WRITE_CALENDAR_REQUEST);
             return false;
+        }
 
         final Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, calEvent);
 
@@ -128,7 +136,7 @@ public class Reminder {
         ContentValues reminders = new ContentValues();
         reminders.put(CalendarContract.Reminders.EVENT_ID, dbId);
         reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
-        reminders.put(CalendarContract.Reminders.MINUTES, 10);
+        reminders.put(CalendarContract.Reminders.MINUTES, 0);
 
         final Uri reminder = cr.insert(CalendarContract.Reminders.CONTENT_URI, reminders);
 

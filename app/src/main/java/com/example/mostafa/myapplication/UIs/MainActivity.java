@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements
     public static final int CALL_PHONE_REQUEST = 100;
     public static final int CAMERA_REQUEST=200;
     public static final int READ_CONTACTS_REQUEST = 300;
+    public static final int WRITE_CALENDAR_REQUEST = 400;
     private Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
 
@@ -206,6 +207,13 @@ public class MainActivity extends AppCompatActivity implements
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for reading contacts", Toast.LENGTH_SHORT).show();
                 }
+            case WRITE_CALENDAR_REQUEST :
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for writing in calender", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for writing in calender", Toast.LENGTH_SHORT).show();
+                }
+
         }
     }
 
