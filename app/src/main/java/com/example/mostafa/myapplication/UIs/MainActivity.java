@@ -16,6 +16,7 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Flashlight;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
 import com.example.mostafa.myapplication.R;
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements
     public static final int CAMERA_REQUEST=200;
     public static final int READ_CONTACTS_REQUEST = 300;
     public static final int WRITE_CALENDAR_REQUEST = 400;
+    public static final int WIFI_REQUEST = 500;
+    public static final int BLUETOOTH_REQUEST = 600;
+    public static final int BLUETOOTH_ADMIN_REQUEST = 700;
     private Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
 
@@ -213,6 +217,24 @@ public class MainActivity extends AppCompatActivity implements
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for writing in calender", Toast.LENGTH_SHORT).show();
                 }
+            case WIFI_REQUEST:
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for change wifi status", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for change wifi status", Toast.LENGTH_SHORT).show();
+                }
+            case BLUETOOTH_REQUEST:
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for change Bluetooth status", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for change Bluetooth status", Toast.LENGTH_SHORT).show();
+                }
+            case BLUETOOTH_ADMIN_REQUEST:
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for Bluetooth Amin", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for Bluetooth Amin", Toast.LENGTH_SHORT).show();
+                }
 
         }
     }
@@ -257,5 +279,39 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCallingContactNotFound(String message) {
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onWiFiOffSucceeded() {
+
+        if(WiFiAndBluetooth.setWifi(this, false))
+            Toast.makeText(this,"Tamam El Wifi et2afal",Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this,"Howa ma2fool aslan",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onWiFiOnSucceeded() {
+        if(WiFiAndBluetooth.setWifi(this, true))
+            Toast.makeText(this,"Tamam El Wifi etfata7",Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this,"Howa mafto7 aslan",Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onBluetoothOnSucceeded() {
+        if (WiFiAndBluetooth.setBluetooth(this, true))
+            Toast.makeText(this,"Tamam fata7t l bluetooth", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this,"l bluetooth maftoo7 aslan", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onBluetoothOffSucceeded() {
+        if (WiFiAndBluetooth.setBluetooth(this, false))
+            Toast.makeText(this,"Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this,"l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
     }
 }

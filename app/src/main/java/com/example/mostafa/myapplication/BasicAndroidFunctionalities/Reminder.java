@@ -72,8 +72,30 @@ public class Reminder {
         {
             if((dateTime==null && whatToBeReminded==null))
             {
-                whatToBeReminded = (String)reminderSentences.get(0).get(0).getValue();
-                analyzerinterface.onReminderRequestingData(true,false);
+                if((Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,reminderSentences.get(0)))
+                        ^ (Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DURATION_ENTITY,reminderSentences.get(0))))
+                {
+                    int dateTimeEntity = IntentAnalyzerAndRecognizer.
+                            containsEntity(IntentAnalyzerAndRecognizer.DATETIME_ENTITY, reminderSentences.get(0));
+                    int durationEntity = IntentAnalyzerAndRecognizer.
+                            containsEntity(IntentAnalyzerAndRecognizer.DURATION_ENTITY, reminderSentences.get(0));
+                    if(dateTimeEntity != -1)
+                    {
+                        dateTime = (String) reminderSentences.get(0).get(dateTimeEntity).getValue();
+                    }
+                    else if(durationEntity != -1)
+                    {
+                        int durationValue = (int) reminderSentences.get(0).get(durationEntity).getValue();
+                        dateTime = Alarm.durationToDateTime(durationValue);
+                    }
+                    whatToBeReminded = (String)reminderSentences.get(0).get(0).getValue();
+                    analyzerinterface.onReminderSucceeded(dateTime, whatToBeReminded);
+                    resetReminder();
+                }
+                else {
+                    whatToBeReminded = (String) reminderSentences.get(0).get(0).getValue();
+                    analyzerinterface.onReminderRequestingData(true, false);
+                }
             }
             else if(dateTime!=null && whatToBeReminded==null)
             {

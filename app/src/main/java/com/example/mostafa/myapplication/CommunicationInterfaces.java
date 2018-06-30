@@ -30,6 +30,10 @@ public interface CommunicationInterfaces {
         void onCallingNumberRequestingData(String message);
         void onCallingByName(String name);
         void onCallingContactNotFound(String message);
+        void onWiFiOnSucceeded();
+        void onWiFiOffSucceeded();
+        void onBluetoothOnSucceeded();
+        void onBluetoothOffSucceeded();
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

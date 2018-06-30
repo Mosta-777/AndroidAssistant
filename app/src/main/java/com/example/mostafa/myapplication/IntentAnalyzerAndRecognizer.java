@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
 import java.util.ArrayList;
@@ -33,6 +34,10 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String CONTACTS_CALL_INTENT_TYPE_INTENTY="contacts_call";
     public static final String PHONE_NUMBER_ENTITY = "phone_number";
     public static final String CONTACT_NAME_ENTITY = "contact_name";
+    public static final String WIFI_ON_INTENT_TYPE_ENTITY = "wifi_on";
+    public static final String WIFI_OFF_INTENT_TYPE_ENTITY = "wifi_off";
+    public static final String BLUETOOTH_ON_INTENT_TYPE_ENTITY = "bluetooth_on";
+    public static final String BLUETOOTH_OFF_INTENT_TYPE_ENTITY = "bluetooth_off";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
     public static final String TEXT_ENTITY="text";
@@ -141,7 +146,13 @@ public class IntentAnalyzerAndRecognizer implements
             case CALL_LOG_SHOW_INTENT_TYPE_ENTITY:
             case CONTACTS_CALL_INTENT_TYPE_INTENTY:
             case CONTACTS_SHOW_INTENT_TYPE_ENTITY :
-                new Calling(this,theWinningSentences,Calling.MODE_DEFAULT);
+                new Calling(this,theWinningSentences,Calling.MODE_DEFAULT);break;
+            case WIFI_ON_INTENT_TYPE_ENTITY:
+            case WIFI_OFF_INTENT_TYPE_ENTITY:
+                new WiFiAndBluetooth(this, theWinningSentences);break;
+            case BLUETOOTH_ON_INTENT_TYPE_ENTITY:
+            case BLUETOOTH_OFF_INTENT_TYPE_ENTITY:
+                new WiFiAndBluetooth(this, theWinningSentences);break;
         }
 
     }
@@ -228,7 +239,6 @@ public class IntentAnalyzerAndRecognizer implements
 
 
 
-
     // Tube functions
     @Override public void onAlarmSetSucceeded(String dateTime) {mainActivityAndAnalyzerInterface.onAlarmSetSucceeded(dateTime);}
     @Override public void onAlarmSetRequestingData(String message){mainActivityAndAnalyzerInterface.onAlarmSetRequestingData(message);}
@@ -243,7 +253,10 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onCallingByName(String name) {mainActivityAndAnalyzerInterface.onCallingByName(name);}
     @Override public void onCallingContactNotFound(String message) {mainActivityAndAnalyzerInterface.onCallingContactNotFound(message);}
     @Override public void onCallingNumberRequestingData(String message) {mainActivityAndAnalyzerInterface.onCallingNumberRequestingData(message);}
-
+    @Override public void onWiFiOnSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOnSucceeded();}
+    @Override public void onWiFiOffSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOffSucceeded();}
+    @Override public void onBluetoothOnSucceeded() {mainActivityAndAnalyzerInterface.onBluetoothOnSucceeded();}
+    @Override public void onBluetoothOffSucceeded() {mainActivityAndAnalyzerInterface.onBluetoothOffSucceeded();}
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
     @Override public void onFlashLightOn(String message) {}
