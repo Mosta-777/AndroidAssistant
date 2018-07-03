@@ -26,7 +26,6 @@ import java.util.TimeZone;
 public class Reminder {
 
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerinterface;
-    private ArrayList<ArrayList<Entity>> reminderSentences;
     private static String dateTime = null;
     private static String whatToBeReminded = null;
     private static boolean welcomeBack = false;
@@ -35,7 +34,6 @@ public class Reminder {
     public Reminder(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
                     ArrayList<ArrayList<Entity>> theWinningSentences){
         analyzerinterface=intentAnalyzerAndRecognizer;
-        reminderSentences=theWinningSentences;
         determineTheBestSentenceForReminderSet(theWinningSentences);
     }
 
@@ -173,7 +171,7 @@ public class Reminder {
         {
             if(((Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,reminderSentences.get(i)))
             ^ (Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DURATION_ENTITY,reminderSentences.get(i))))
-                    & Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.REMINDER_FREE_TEXT, reminderSentences.get(i)))
+                    && Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.REMINDER_FREE_TEXT, reminderSentences.get(i)))
             {
                 int dateTimeEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.DATETIME_ENTITY, reminderSentences.get(i));

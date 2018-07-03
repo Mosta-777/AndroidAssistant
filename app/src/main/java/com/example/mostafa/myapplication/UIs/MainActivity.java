@@ -15,7 +15,11 @@ import android.widget.Toast;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Flashlight;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.GoogleSearch;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.OpenNonNativeApps;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Profiles;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.SendingSMS;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements
     private final int REQUEST_ALARM_DATA = 2;
     private final int REQUEST_REMINDER_DATA = 3;
     private static final int REQUEST_PHONE_NUMBER = 4;
+    private static final int REQUEST_GOOGLE_SEARCH = 5;
     public static final int CALL_PHONE_REQUEST = 100;
     public static final int CAMERA_REQUEST=200;
     public static final int READ_CONTACTS_REQUEST = 300;
@@ -90,11 +95,12 @@ public class MainActivity extends AppCompatActivity implements
             intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this,results);
         }else if (requestCode==REQUEST_ALARM_DATA && resultCode == RESULT_OK){
             intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
-        }
-        else if (requestCode==REQUEST_REMINDER_DATA && resultCode==RESULT_OK){
+        } else if (requestCode==REQUEST_REMINDER_DATA && resultCode==RESULT_OK){
             intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
         }else if (requestCode==REQUEST_PHONE_NUMBER && resultCode==RESULT_OK){
-            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_INTENTY);
+            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
+        }else if (requestCode==REQUEST_GOOGLE_SEARCH && resultCode == RESULT_OK){
+            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -279,6 +285,72 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCallingContactNotFound(String message) {
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onNormalModeOn(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnNormalMode(this);
+    }
+
+    @Override
+    public void onSilentModeOn(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnSilentMode(this);
+    }
+
+    @Override
+    public void onVibrationModeOn(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnVibrationMode(this);
+    }
+
+    @Override
+    public void onSmsShow(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        SendingSMS.showSms(this);
+    }
+
+    @Override
+    public void onSmsSendSucceeded(String contactName, String smsBody) {
+        Toast.makeText(this, "Sending "+smsBody+" to "+contactName, Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
+
+    }
+    @Override
+    public void onSmsSendFailed(String message){}
+
+    @Override
+    public void onSearchSuccess(String message) {
+        // TODO voice over : "Tamam hya de ntayg il search"
+        Toast.makeText(this, "Tamam hasearch", Toast.LENGTH_SHORT).show();
+        GoogleSearch.googleSearch(this,message);
+    }
+
+    @Override
+    public void onSearchRequestingData(String message) {
+        // TODO voice over : "Eshta 3ayz tsearch 3ala eh "
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        startActivityForResult(voiceRecognizer,REQUEST_GOOGLE_SEARCH);
+    }
+
+    @Override
+    public void onOpeningNonNativeAppSuccess(String appPackageName) {
+        // TODO voice over : "tamam hafta7 il app"
+        Toast.makeText(this, "Opening "+appPackageName, Toast.LENGTH_SHORT).show();
+        if (OpenNonNativeApps.isPackageInstalled(this,appPackageName))
+            OpenNonNativeApps.openApp(this,appPackageName);
+        else Toast.makeText(this, "Il app msh installed 3andk", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onOpeningNonNativeAppRequestingData(String message) {
+        // TODO voice over : "Eshta eh esm il app illi 3ayzo ytft7"
+
     }
 
     @Override

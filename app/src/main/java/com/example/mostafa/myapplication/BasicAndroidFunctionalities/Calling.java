@@ -36,22 +36,22 @@ public class Calling {
     public static final int MODE_DEFAULT=100;
     public static final int MODE_REQUESTING_DATA=200;
 
-    private static CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerinterface;
+    private static CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerInterface;
     private int currentMode;
 
 
 
     public Calling(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
                    ArrayList<ArrayList<Entity>> theWinningSentences,int currentMode) {
-        analyzerinterface = intentAnalyzerAndRecognizer;
+        analyzerInterface = intentAnalyzerAndRecognizer;
         this.currentMode=currentMode;
         int i = isThereShowContactsShowCallLogOrPhoneNumber(theWinningSentences);
         switch (i) {
             case 0:
-                analyzerinterface.onShowCallLog("Tamam eshta il call log aho");
+                analyzerInterface.onShowCallLog("Tamam eshta il call log aho");
                 break;
             case 1:
-                analyzerinterface.onShowContacts("Tamam il contacts ahy");
+                analyzerInterface.onShowContacts("Tamam il contacts ahy");
                 break;
             case 2:
                 callUsingTheNumber(theWinningSentences);
@@ -70,7 +70,7 @@ public class Calling {
         String theNumberToCall = theSentenceContainingTheNumber.get(IntentAnalyzerAndRecognizer
                 .containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY, theSentenceContainingTheNumber))
                 .getValue().toString();
-        analyzerinterface.onCallingNumberSucceeded(theNumberToCall);
+        analyzerInterface.onCallingNumberSucceeded(theNumberToCall);
     }
 
 
@@ -84,14 +84,14 @@ public class Calling {
                 String theContactName = theSentenceContainingTheContactName.get(IntentAnalyzerAndRecognizer
                         .containsEntity(IntentAnalyzerAndRecognizer.CONTACT_NAME_ENTITY, theSentenceContainingTheContactName))
                         .getValue().toString();
-                analyzerinterface.onCallingByName(theContactName);
-            } else analyzerinterface.onCallingNumberRequestingData("Tamam aklm meen");
+                analyzerInterface.onCallingByName(theContactName);
+            } else analyzerInterface.onCallingNumberRequestingData("Tamam aklm meen");
         }else if (currentMode == MODE_REQUESTING_DATA){
             ArrayList<Entity> theSentenceContainingTheContactName=theWinningSentences.get(0);
             String theContactName = theSentenceContainingTheContactName.get(IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.TEXT_ENTITY,theSentenceContainingTheContactName))
                     .getValue().toString();
-            analyzerinterface.onCallingByName(theContactName);
+            analyzerInterface.onCallingByName(theContactName);
         }
 
     }
@@ -99,11 +99,11 @@ public class Calling {
     private int isThereShowContactsShowCallLogOrPhoneNumber(ArrayList<ArrayList<Entity>> theWinningSentences) {
         for (int i = 0; i < theWinningSentences.size(); i++) {
             if (IntentAnalyzerAndRecognizer
-                    .containsEntity(IntentAnalyzerAndRecognizer.CALL_LOG_SHOW_INTENT_TYPE_ENTITY
-                            , theWinningSentences.get(i))!=-1) return 0;
+                    .containsIntentValue(IntentAnalyzerAndRecognizer.CALL_LOG_SHOW_INTENT_TYPE_ENTITY
+                            , theWinningSentences.get(i))) return 0;
             else if (IntentAnalyzerAndRecognizer
-                    .containsEntity(IntentAnalyzerAndRecognizer.CONTACTS_SHOW_INTENT_TYPE_ENTITY
-                            , theWinningSentences.get(i))!=-1) return 1;
+                    .containsIntentValue(IntentAnalyzerAndRecognizer.CONTACTS_SHOW_INTENT_TYPE_ENTITY
+                            , theWinningSentences.get(i))) return 1;
             else if (IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY
                             , theWinningSentences.get(i))!=-1) return 2;
@@ -141,43 +141,46 @@ public class Calling {
             return;
         }
         ArrayList<Contact> contacts = getTheContacts(context);
-        boolean contactFound=false;
-        for (int i=0;i<4;i++){
-            if (searchForContact(contacts,contactName,i))contactFound=true;
-        }
-        if (!contactFound)analyzerinterface.onCallingContactNotFound("Contact was not found");
+        String contactNumber = searchForContactFourMethods(contacts,contactName);
+        if (contactNumber!=null) analyzerInterface.onCallingNumberSucceeded(contactNumber);
+        else analyzerInterface.onCallingContactNotFound("Msh la2y il contact dah 3ndk");
+
     }
 
-    private static boolean searchForContact(ArrayList<Contact> contacts, String contactName,int searchMode) {
+    public static String searchForContactFourMethods(ArrayList<Contact> contacts, String contactName) {
+        String contactNumber;
+        for (int i = 0; i < 4; i++) {
+            contactNumber = searchForContact(contacts, contactName, i);
+            if (contactNumber != null) return contactName;
+        }
+        return null;
+    }
+
+    private static String searchForContact(ArrayList<Contact> contacts, String contactName,int searchMode) {
         String contactName1=contactName+" ";
         String contactName2=contactName.substring(1)+" ";
         for (int i=0;i<contacts.size();i++){
             if (searchMode==0) {
                 if (contactName.equals(contacts.get(i).getContactName())) {
-                    analyzerinterface.onCallingNumberSucceeded(contacts.get(i).getContactNumber());
-                    return true;
+                    return contacts.get(i).getContactNumber();
                 }
             }else if (searchMode==1){
                 if (contactName.substring(1).equals(contacts.get(i).getContactName())) {
-                    analyzerinterface.onCallingNumberSucceeded(contacts.get(i).getContactNumber());
-                    return true;
+                    return contacts.get(i).getContactNumber();
                 }
             }else if (searchMode==2){
                 String co=contacts.get(i).getContactName();
                 if (contacts.get(i).getContactName().contains(contactName1)) {
-                    analyzerinterface.onCallingNumberSucceeded(contacts.get(i).getContactNumber());
-                    return true;
+                    return contacts.get(i).getContactNumber();
                 }
             }else if (searchMode==3){
                 if (contacts.get(i).getContactName().contains(contactName2)) {
-                    analyzerinterface.onCallingNumberSucceeded(contacts.get(i).getContactNumber());
-                    return true;
+                    return contacts.get(i).getContactNumber();
                 }
             }
         }
-        return false;
+        return null;
     }
-
     private static ArrayList<Contact> getTheContacts(Context context) {
         ContentResolver cr = context.getContentResolver();
 

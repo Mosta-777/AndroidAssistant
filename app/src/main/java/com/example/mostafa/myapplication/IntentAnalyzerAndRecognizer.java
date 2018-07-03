@@ -4,7 +4,11 @@ import android.util.Log;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.GoogleSearch;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.OpenNonNativeApps;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Profiles;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.SendingSMS;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
@@ -31,16 +35,26 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String REMINDER_FREE_TEXT = "reminder_free_text";
     public static final String CALL_LOG_SHOW_INTENT_TYPE_ENTITY="call_log_show";
     public static final String CONTACTS_SHOW_INTENT_TYPE_ENTITY="contacts_show";
-    public static final String CONTACTS_CALL_INTENT_TYPE_INTENTY="contacts_call";
+    public static final String CONTACTS_CALL_INTENT_TYPE_ENTITY ="contacts_call";
+    public static final String NORMAL_MODE_INTENT_TYPE_ENTITY="mode_normal";
+    public static final String SILENT_MODE_INTENT_TYPE_ENTITY="mode_silent";
+    public static final String VIBRATION_MODE_INTENT_TYPE_ENTITY ="mode_vibration";
     public static final String PHONE_NUMBER_ENTITY = "phone_number";
     public static final String CONTACT_NAME_ENTITY = "contact_name";
     public static final String WIFI_ON_INTENT_TYPE_ENTITY = "wifi_on";
     public static final String WIFI_OFF_INTENT_TYPE_ENTITY = "wifi_off";
     public static final String BLUETOOTH_ON_INTENT_TYPE_ENTITY = "bluetooth_on";
     public static final String BLUETOOTH_OFF_INTENT_TYPE_ENTITY = "bluetooth_off";
+    public static final String SMS_SHOW_INTENT_TYPE_ENTITY = "sms_show";
+    public static final String SMS_SEND_INTENT_TYPE_ENTITY = "sms_send";
+    public static final String GOOGLE_SEARCH_INTENT_TYPE_ENTITY = "google_search";
+    public static final String SMS_FREE_TEXT_ENTITY = "sms_free_text";
     public  static final String DATETIME_ENTITY="datetime";
     public  static final String DURATION_ENTITY="duration";
     public static final String TEXT_ENTITY="text";
+    public static final String SEARCH_FREE_TEXT_ENTITY = "search_free_text";
+    public static final String OPEN_APPS_INTENT_TYPE_ENTITY="open_apps";
+    public static final String APP_NAME_ENTITY = "app_name";
     public static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
@@ -115,9 +129,13 @@ public class IntentAnalyzerAndRecognizer implements
             case IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY:
                 new Reminder(this, sentences);
                 break;
-            case IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_INTENTY:
+            case IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY:
                 new Calling(this, sentences, Calling.MODE_REQUESTING_DATA);
                 break;
+            case IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY:
+                new GoogleSearch(this,sentences,true);
+            case IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY:
+                new OpenNonNativeApps(this,sentences);
         }
     }
 
@@ -132,27 +150,33 @@ public class IntentAnalyzerAndRecognizer implements
             case ALARM_SET_INTENT_TYPE_ENTITY:
             case ALARM_SHOW_INTENT_TYPE_ENTITY:
             case ALARM_DELETE_INTENT_TYPE_ENTITY:
-                new Alarm(this, theWinningSentences);
-                break;
+                new Alarm(this, theWinningSentences);break;
             case FLASH_ON_INTENT_TYPE_ENTITY:
-                mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");
-                break;
+                mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");break;
             case FLASH_OFF_INTENT_TYPE_ENTITY:
-                mainActivityAndAnalyzerInterface.onFlashLightOff("Closing the flashlight ...");
-                break;
+                mainActivityAndAnalyzerInterface.onFlashLightOff("Closing the flashlight ...");break;
             case REMINDER_INTENT_TYPE_ENTITY:
-                new Reminder(this,theWinningSentences);
-                break;
+                new Reminder(this,theWinningSentences);break;
             case CALL_LOG_SHOW_INTENT_TYPE_ENTITY:
-            case CONTACTS_CALL_INTENT_TYPE_INTENTY:
+            case CONTACTS_CALL_INTENT_TYPE_ENTITY:
             case CONTACTS_SHOW_INTENT_TYPE_ENTITY :
                 new Calling(this,theWinningSentences,Calling.MODE_DEFAULT);break;
+            case NORMAL_MODE_INTENT_TYPE_ENTITY:
+            case SILENT_MODE_INTENT_TYPE_ENTITY:
+            case VIBRATION_MODE_INTENT_TYPE_ENTITY:
+                new Profiles(this,theWinningSentences);break;
             case WIFI_ON_INTENT_TYPE_ENTITY:
             case WIFI_OFF_INTENT_TYPE_ENTITY:
-                new WiFiAndBluetooth(this, theWinningSentences);break;
             case BLUETOOTH_ON_INTENT_TYPE_ENTITY:
             case BLUETOOTH_OFF_INTENT_TYPE_ENTITY:
                 new WiFiAndBluetooth(this, theWinningSentences);break;
+            case SMS_SEND_INTENT_TYPE_ENTITY:
+            case SMS_SHOW_INTENT_TYPE_ENTITY:
+                new SendingSMS(this,theWinningSentences);break;
+            case GOOGLE_SEARCH_INTENT_TYPE_ENTITY:
+                new GoogleSearch(this,theWinningSentences,false);break;
+            case OPEN_APPS_INTENT_TYPE_ENTITY:
+                new OpenNonNativeApps(this,theWinningSentences);
         }
 
     }
@@ -252,6 +276,25 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onCallingNumberSucceeded(String phoneNumber) {mainActivityAndAnalyzerInterface.onCallingNumberSucceeded(phoneNumber);}
     @Override public void onCallingByName(String name) {mainActivityAndAnalyzerInterface.onCallingByName(name);}
     @Override public void onCallingContactNotFound(String message) {mainActivityAndAnalyzerInterface.onCallingContactNotFound(message);}
+    @Override public void onNormalModeOn(String message) {mainActivityAndAnalyzerInterface.onNormalModeOn(message);}
+    @Override public void onSilentModeOn(String message) {mainActivityAndAnalyzerInterface.onSilentModeOn(message);}
+    @Override public void onVibrationModeOn(String message) {mainActivityAndAnalyzerInterface.onVibrationModeOn(message);}
+    @Override public void onSmsShow(String message) {mainActivityAndAnalyzerInterface.onSmsShow(message);}
+    @Override public void onSmsSendSucceeded(String contactName, String smsBody)
+    {mainActivityAndAnalyzerInterface.onSmsSendSucceeded(contactName,smsBody);}
+    @Override public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists)
+    {mainActivityAndAnalyzerInterface.onSmsSendRequestingData(contactNameExists,smsBodyExists);}
+    @Override public void onSmsSendFailed(String message) {mainActivityAndAnalyzerInterface.onSmsSendFailed(message);}
+    @Override public void onSearchSuccess(String message) {mainActivityAndAnalyzerInterface.onSearchSuccess(message);}
+    @Override public void onSearchRequestingData(String message) {mainActivityAndAnalyzerInterface.onSearchRequestingData(message);}
+    @Override public void onOpeningNonNativeAppSuccess(String appName) {
+        mainActivityAndAnalyzerInterface.onOpeningNonNativeAppSuccess(appName);
+    }
+    @Override
+    public void onOpeningNonNativeAppRequestingData(String message) {
+        mainActivityAndAnalyzerInterface.onOpeningNonNativeAppRequestingData(message);
+    }
+
     @Override public void onCallingNumberRequestingData(String message) {mainActivityAndAnalyzerInterface.onCallingNumberRequestingData(message);}
     @Override public void onWiFiOnSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOnSucceeded();}
     @Override public void onWiFiOffSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOffSucceeded();}

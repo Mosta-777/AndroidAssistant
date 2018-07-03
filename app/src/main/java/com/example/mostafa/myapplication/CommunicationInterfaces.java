@@ -34,6 +34,18 @@ public interface CommunicationInterfaces {
         void onWiFiOffSucceeded();
         void onBluetoothOnSucceeded();
         void onBluetoothOffSucceeded();
+        void onNormalModeOn(String message);
+        void onSilentModeOn(String message);
+        void onVibrationModeOn(String message);
+        void onSmsShow(String message);
+        void onSmsSendSucceeded(String contactNumber, String smsBody);
+        void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists);
+        void onSmsSendFailed(String message);
+        void onSearchSuccess(String message);
+        void onSearchRequestingData(String message);
+        void onOpeningNonNativeAppSuccess(String appName);
+        void onOpeningNonNativeAppRequestingData(String message);
+
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);
