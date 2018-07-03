@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements
     private final int REQUEST_REMINDER_DATA = 3;
     private static final int REQUEST_PHONE_NUMBER = 4;
     private static final int REQUEST_GOOGLE_SEARCH = 5;
+    private static final int REQUEST_SMS_DATA = 6;
     public static final int CALL_PHONE_REQUEST = 100;
     public static final int CAMERA_REQUEST=200;
     public static final int READ_CONTACTS_REQUEST = 300;
@@ -104,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements
             }
             else if (requestCode==REQUEST_GOOGLE_SEARCH){
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
+            }
+            else if(requestCode==REQUEST_SMS_DATA){
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
             }
         }
 
@@ -171,6 +175,8 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this," Tamam cancelt "+intentToCancel,Toast.LENGTH_LONG).show();
         if(intentToCancel.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
             Reminder.resetReminder();
+        else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY))
+            SendingSMS.clearData();
         // if the intent to cancel stored data in the shared pref. , delete it
         // else do nothing
     }
@@ -317,13 +323,23 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onSmsSendSucceeded(String contactName, String smsBody) {
+        SendingSMS.sendMessage(this,contactName,smsBody);
         Toast.makeText(this, "Sending "+smsBody+" to "+contactName, Toast.LENGTH_SHORT).show();
+        //TODO VO: "Lw 3ayz t confirm dos enter"
 
     }
 
     @Override
     public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
-
+        if(!contactNameExists && !smsBodyExists){
+            Toast.makeText(this,"Ab3at l sms l meen",Toast.LENGTH_LONG).show();
+            //TODO VO: "Ab3at l sms l meen"
+        }
+        else if(!smsBodyExists) {
+            Toast.makeText(this, "Ab3at a2olo eh ?", Toast.LENGTH_LONG).show();
+            //TODO VO: "a2ool eh fl sms"
+        }
+        startActivityForResult(voiceRecognizer,REQUEST_SMS_DATA);
     }
     @Override
     public void onSmsSendFailed(String message){}
@@ -392,13 +408,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onCameraSucceeded() {
-        BuiltInApps.openCamera(this);
-    }
-
-    @Override
     public void onMusicSucceeded() {
         BuiltInApps.openMusic(this);
     }
-}
 
+    @Override
+    public void onCameraSucceeded() {
+        BuiltInApps.openCamera(this);
+    }
+}

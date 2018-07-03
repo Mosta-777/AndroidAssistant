@@ -139,6 +139,8 @@ public class IntentAnalyzerAndRecognizer implements
                 new GoogleSearch(this,sentences,true);
             case IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY:
                 new OpenNonNativeApps(this,sentences);
+            case IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY:
+                new SendingSMS(this,sentences);
         }
     }
 
@@ -288,6 +290,7 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onSmsShow(String message) {mainActivityAndAnalyzerInterface.onSmsShow(message);}
     @Override public void onSmsSendSucceeded(String contactName, String smsBody)
     {mainActivityAndAnalyzerInterface.onSmsSendSucceeded(contactName,smsBody);}
+
     @Override public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists)
     {mainActivityAndAnalyzerInterface.onSmsSendRequestingData(contactNameExists,smsBodyExists);}
     @Override public void onSmsSendFailed(String message) {mainActivityAndAnalyzerInterface.onSmsSendFailed(message);}

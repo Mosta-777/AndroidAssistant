@@ -119,8 +119,6 @@ public class Reminder {
 
     public static boolean setReminder(Context context, String reminderDateTime, String reminderFreeText) {
 
-
-
         int reminderYear = Integer.parseInt(reminderDateTime.substring(0, 4));
         int reminderMonth = Integer.parseInt(reminderDateTime.substring(5, 7));
         int reminderDay = Integer.parseInt(reminderDateTime.substring(8, 10));

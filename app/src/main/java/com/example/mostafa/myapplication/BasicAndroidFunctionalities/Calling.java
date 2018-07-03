@@ -151,7 +151,7 @@ public class Calling {
         String contactNumber;
         for (int i = 0; i < 4; i++) {
             contactNumber = searchForContact(contacts, contactName, i);
-            if (contactNumber != null) return contactName;
+            if (contactNumber != null) return contactNumber;
         }
         return null;
     }
@@ -181,7 +181,7 @@ public class Calling {
         }
         return null;
     }
-    private static ArrayList<Contact> getTheContacts(Context context) {
+    public static ArrayList<Contact> getTheContacts(Context context) {
         ContentResolver cr = context.getContentResolver();
 
         Cursor pCur = cr.query(
