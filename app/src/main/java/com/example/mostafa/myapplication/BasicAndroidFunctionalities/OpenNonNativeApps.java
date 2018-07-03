@@ -21,14 +21,14 @@ public class OpenNonNativeApps {
     private HashMap<String, String> appsMap = new HashMap<String, String>() {{
         put("الفيسبوك","com.facebook.katana");
         put("الواتس اب","com.whatsapp");
-        put("جوجل","com.google.android.googlequick-searchbox"); // TODO : problem with google app
+        put("جوجل","com.google.android.googlequicksearchbox");
         put("جوجل درايف","com.google.android.apps.docs");
         put("الجي ميل","com.google.android.gm");
         put("جوجل كروم","com.android.chrome");
         put("فيسبوك لايت","com.facebook.lite");
         put("جوجل مابس","com.google.android.apps.maps");
         put("الماسنجر","com.facebook.orca");
-        put("اوبر","com.ubercab"); // TODO : problem with uber
+        put("اوبر","com.ubercab");
         put("كريم","com.careem.acma");
         put("اليوتيوب","com.google.android.youtube");
         put("التروكولر","com.truecaller");
@@ -37,8 +37,29 @@ public class OpenNonNativeApps {
         put("شيرت","com.lenovo.anyshare.gps");
         put("شازام","com.shazam.android");
         put("انستجرام","com.instagram.android");
-
-
+        put("انغامي","com.anghami");
+        put("اوليكس","com.olxmena.horizontal");
+        put("تويتر","com.twitter.android");
+        put("سناب شات","com.snapchat.android");
+        put("كاندي كراش","com.king.candycrushsaga");
+        put("فايبر","com.viber.voip");
+        put("صب واي سيرفرس","com.kiloo.subwaysurf");
+        put("ماسنجر لايت","com.facebook.mlite");
+        put("تليجرام","org.telegram.messenger");
+        put("هانجوتس","com.google.android.talk");
+        put("سكايب","com.skype.raider");
+        put("رتريكا","com.venticake.retrica");
+        put("جوميا","com.jumia.android");
+        put("سوق","com.souq.app");
+        put("خان اكاديمي","org.khanacademy.android");
+        put("كورسيرا","org.coursera.android");
+        put("وكيبيديا","org.wikipedia");
+        put("دولينجو","com.duolingo");
+        put("كام سكانر","com.intsig.camscanner");
+        put("جوجل كالندر","com.google.android.calendar");
+        put("فايرفوكس","org.mozilla.firefox");
+        put("وان درايف","com.microsoft.skydrive");
+        put("اوبرا","com.opera.browser");
     }};
 
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerInterface;

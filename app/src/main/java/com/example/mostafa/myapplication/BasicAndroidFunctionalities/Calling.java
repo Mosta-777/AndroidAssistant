@@ -142,6 +142,7 @@ public class Calling {
         }
         ArrayList<Contact> contacts = getTheContacts(context);
         String contactNumber = searchForContactFourMethods(contacts,contactName);
+        //String contactNumber = searchForContactFourMethods(getTheContacts(context),contactName);
         if (contactNumber!=null) analyzerInterface.onCallingNumberSucceeded(contactNumber);
         else analyzerInterface.onCallingContactNotFound("Msh la2y il contact dah 3ndk");
 

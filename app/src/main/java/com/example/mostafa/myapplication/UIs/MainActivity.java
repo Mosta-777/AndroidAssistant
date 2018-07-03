@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements
     private final int REQUEST_REMINDER_DATA = 3;
     private static final int REQUEST_PHONE_NUMBER = 4;
     private static final int REQUEST_GOOGLE_SEARCH = 5;
-    private static final int REQUEST_SMS_DATA = 6;
+    private static final int REQUEST_OPEN_APPS = 6;
+    private static final int REQUEST_SMS_DATA = 7;
     public static final int CALL_PHONE_REQUEST = 100;
     public static final int CAMERA_REQUEST=200;
     public static final int READ_CONTACTS_REQUEST = 300;
@@ -102,11 +103,11 @@ public class MainActivity extends AppCompatActivity implements
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
             } else if (requestCode == REQUEST_PHONE_NUMBER) {
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
-            }
-            else if (requestCode==REQUEST_GOOGLE_SEARCH){
+            } else if (requestCode==REQUEST_GOOGLE_SEARCH){
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
-            }
-            else if(requestCode==REQUEST_SMS_DATA){
+            } else if (requestCode==REQUEST_OPEN_APPS){
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY);
+            } else if(requestCode==REQUEST_SMS_DATA){
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
             }
         }
@@ -370,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onOpeningNonNativeAppRequestingData(String message) {
         // TODO voice over : "Eshta eh esm il app illi 3ayzo ytft7"
-
+        startActivityForResult(voiceRecognizer,REQUEST_OPEN_APPS);
     }
 
     @Override

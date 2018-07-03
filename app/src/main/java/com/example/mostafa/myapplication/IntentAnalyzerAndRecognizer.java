@@ -102,7 +102,6 @@ public class IntentAnalyzerAndRecognizer implements
                 // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
                 // with the intent got the highest votes and contains the highest number of data entities .
                 HashMap.Entry<String, Vote> winningEntry = getTheWinnerEntry();
-
                 if (winningEntry != null) { // The sentences were meaningful ( one of them at least )
                     Vote theWinnerVote = winningEntry.getValue();
                     String winningIntent = winningEntry.getKey();
@@ -288,22 +287,13 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onSilentModeOn(String message) {mainActivityAndAnalyzerInterface.onSilentModeOn(message);}
     @Override public void onVibrationModeOn(String message) {mainActivityAndAnalyzerInterface.onVibrationModeOn(message);}
     @Override public void onSmsShow(String message) {mainActivityAndAnalyzerInterface.onSmsShow(message);}
-    @Override public void onSmsSendSucceeded(String contactName, String smsBody)
-    {mainActivityAndAnalyzerInterface.onSmsSendSucceeded(contactName,smsBody);}
-
-    @Override public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists)
-    {mainActivityAndAnalyzerInterface.onSmsSendRequestingData(contactNameExists,smsBodyExists);}
+    @Override public void onSmsSendSucceeded(String contactName, String smsBody) {mainActivityAndAnalyzerInterface.onSmsSendSucceeded(contactName,smsBody);}
+    @Override public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {mainActivityAndAnalyzerInterface.onSmsSendRequestingData(contactNameExists,smsBodyExists);}
     @Override public void onSmsSendFailed(String message) {mainActivityAndAnalyzerInterface.onSmsSendFailed(message);}
     @Override public void onSearchSuccess(String message) {mainActivityAndAnalyzerInterface.onSearchSuccess(message);}
     @Override public void onSearchRequestingData(String message) {mainActivityAndAnalyzerInterface.onSearchRequestingData(message);}
-    @Override public void onOpeningNonNativeAppSuccess(String appName) {
-        mainActivityAndAnalyzerInterface.onOpeningNonNativeAppSuccess(appName);
-    }
-    @Override
-    public void onOpeningNonNativeAppRequestingData(String message) {
-        mainActivityAndAnalyzerInterface.onOpeningNonNativeAppRequestingData(message);
-    }
-
+    @Override public void onOpeningNonNativeAppSuccess(String appName) {mainActivityAndAnalyzerInterface.onOpeningNonNativeAppSuccess(appName);}
+    @Override public void onOpeningNonNativeAppRequestingData(String message) {mainActivityAndAnalyzerInterface.onOpeningNonNativeAppRequestingData(message);}
     @Override public void onCallingNumberRequestingData(String message) {mainActivityAndAnalyzerInterface.onCallingNumberRequestingData(message);}
     @Override public void onWiFiOnSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOnSucceeded();}
     @Override public void onWiFiOffSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOffSucceeded();}
