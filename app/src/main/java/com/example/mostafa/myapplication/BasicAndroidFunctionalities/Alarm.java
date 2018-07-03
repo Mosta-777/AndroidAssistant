@@ -124,7 +124,9 @@ public class Alarm {
                 return true;
             }
             else return false;
-        } else return false;
+        }
+        else
+            return false;
     }
 
     public static String durationToDateTime(int durationValue)

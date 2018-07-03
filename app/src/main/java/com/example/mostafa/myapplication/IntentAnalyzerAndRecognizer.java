@@ -3,6 +3,7 @@ package com.example.mostafa.myapplication;
 import android.util.Log;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.BuiltInApps;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.GoogleSearch;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.OpenNonNativeApps;
@@ -45,6 +46,8 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String WIFI_OFF_INTENT_TYPE_ENTITY = "wifi_off";
     public static final String BLUETOOTH_ON_INTENT_TYPE_ENTITY = "bluetooth_on";
     public static final String BLUETOOTH_OFF_INTENT_TYPE_ENTITY = "bluetooth_off";
+    public static final String CAMERA_INTENT_TYPE_ENTITY = "camera";
+    public static final String MUSIC_INTENT_TYPE_ENTITY = "music";
     public static final String SMS_SHOW_INTENT_TYPE_ENTITY = "sms_show";
     public static final String SMS_SEND_INTENT_TYPE_ENTITY = "sms_send";
     public static final String GOOGLE_SEARCH_INTENT_TYPE_ENTITY = "google_search";
@@ -176,7 +179,10 @@ public class IntentAnalyzerAndRecognizer implements
             case GOOGLE_SEARCH_INTENT_TYPE_ENTITY:
                 new GoogleSearch(this,theWinningSentences,false);break;
             case OPEN_APPS_INTENT_TYPE_ENTITY:
-                new OpenNonNativeApps(this,theWinningSentences);
+                new OpenNonNativeApps(this,theWinningSentences);break;
+            case CAMERA_INTENT_TYPE_ENTITY:
+            case MUSIC_INTENT_TYPE_ENTITY:
+                new BuiltInApps(this, theWinningSentences);break;
         }
 
     }
@@ -300,6 +306,9 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onWiFiOffSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOffSucceeded();}
     @Override public void onBluetoothOnSucceeded() {mainActivityAndAnalyzerInterface.onBluetoothOnSucceeded();}
     @Override public void onBluetoothOffSucceeded() {mainActivityAndAnalyzerInterface.onBluetoothOffSucceeded();}
+    @Override public void onCameraSucceeded(){mainActivityAndAnalyzerInterface.onCameraSucceeded();}
+    @Override public void onMusicSucceeded(){mainActivityAndAnalyzerInterface.onMusicSucceeded();}
+
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
     @Override public void onFlashLightOn(String message) {}

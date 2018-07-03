@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.BuiltInApps;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Calling;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Flashlight;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.GoogleSearch;
@@ -84,23 +85,26 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-        float[] confidence=data.getFloatArrayExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
-        ArrayList<String> endResults=new ArrayList<>();
-        for (int i=0;i<results.size();i++){
-            endResults.add(results.get(i)+"     "+confidence[i]);
-        }
-        lv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1 , endResults));
-        if(requestCode == REQUEST_DEFAULT && resultCode == RESULT_OK) {
-            intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this,results);
-        }else if (requestCode==REQUEST_ALARM_DATA && resultCode == RESULT_OK){
-            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
-        } else if (requestCode==REQUEST_REMINDER_DATA && resultCode==RESULT_OK){
-            intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
-        }else if (requestCode==REQUEST_PHONE_NUMBER && resultCode==RESULT_OK){
-            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
-        }else if (requestCode==REQUEST_GOOGLE_SEARCH && resultCode == RESULT_OK){
-            intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
+        if(resultCode== RESULT_OK && data!=null) {
+            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            float[] confidence = data.getFloatArrayExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
+            ArrayList<String> endResults = new ArrayList<>();
+            for (int i = 0; i < results.size(); i++) {
+                endResults.add(results.get(i) + "     " + confidence[i]);
+            }
+            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, endResults));
+            if (requestCode == REQUEST_DEFAULT) {
+                intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this, results);
+            } else if (requestCode == REQUEST_ALARM_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_REMINDER_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_PHONE_NUMBER) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
+            }
+            else if (requestCode==REQUEST_GOOGLE_SEARCH){
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -386,4 +390,15 @@ public class MainActivity extends AppCompatActivity implements
         else
             Toast.makeText(this,"l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
     }
+
+    @Override
+    public void onCameraSucceeded() {
+        BuiltInApps.openCamera(this);
+    }
+
+    @Override
+    public void onMusicSucceeded() {
+        BuiltInApps.openMusic(this);
+    }
 }
+

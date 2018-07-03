@@ -34,6 +34,8 @@ public interface CommunicationInterfaces {
         void onWiFiOffSucceeded();
         void onBluetoothOnSucceeded();
         void onBluetoothOffSucceeded();
+        void onCameraSucceeded();
+        void onMusicSucceeded();
         void onNormalModeOn(String message);
         void onSilentModeOn(String message);
         void onVibrationModeOn(String message);
