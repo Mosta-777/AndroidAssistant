@@ -11,11 +11,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
@@ -27,9 +29,11 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.OpenNonNati
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Profiles;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.SendingSMS;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Weather;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
+import com.example.mostafa.myapplication.POJOS.Forecast;
 import com.example.mostafa.myapplication.R;
 import com.example.mostafa.myapplication.service.UserClient;
 
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements
     private boolean isListening = false;
     Button b1 ;
     ListView lv;
+    TextView tv;
 
     Retrofit.Builder builder=new Retrofit.Builder()
             .baseUrl(baseURL)
@@ -80,18 +85,17 @@ public class MainActivity extends AppCompatActivity implements
         initializeTheVoiceRecognizer();
         lv = (ListView) findViewById(R.id.listview1);
         b1 = (Button) findViewById(R.id.button1);
+        tv = findViewById(R.id.rms);
         b1.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 //startActivityForResult(voiceRecognizer, REQUEST_DEFAULT);
                 if(!isListening) {
-                    isListening = true;
                     requestCode = REQUEST_DEFAULT ;
                     speech.startListening(voiceRecognizer);
                 }
                 else {
-                    isListening = false;
                     speech.stopListening();
                 }
             }
@@ -482,18 +486,31 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onWeatherSucceeded(String url) {
+        ArrayList<Forecast> weather = null;
+        try{
+            weather = new Weather.fetchForecastData().execute(url).get();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        ArrayList<String> weatherData = Weather.getWeather(weather);
+        Toast.makeText(this,weatherData.get(0)+"\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public void onReadyForSpeech(Bundle bundle) {
 
     }
 
     @Override
     public void onBeginningOfSpeech() {
-
+        isListening = true;
     }
 
     @Override
     public void onRmsChanged(float v) {
-
+        tv.setText(String.valueOf(v));
     }
 
     @Override

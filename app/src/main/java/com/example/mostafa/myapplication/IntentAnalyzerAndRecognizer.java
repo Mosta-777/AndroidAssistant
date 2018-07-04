@@ -10,6 +10,7 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.OpenNonNati
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Profiles;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Reminder;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.SendingSMS;
+import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Weather;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Vote;
@@ -59,7 +60,8 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String SEARCH_FREE_TEXT_ENTITY = "search_free_text";
     public static final String OPEN_APPS_INTENT_TYPE_ENTITY="open_apps";
     public static final String APP_NAME_ENTITY = "app_name";
-    static final double CONFIDENCE_THRESHOLD = 0.7 ;
+    public static final String WEATHER_INTENT_TYPE_ENTITY = "weather";
+    public static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();
@@ -103,6 +105,7 @@ public class IntentAnalyzerAndRecognizer implements
                 // The getWinnerIntent function returns the sentence ( the ArrayList of entities )
                 // with the intent got the highest votes and contains the highest number of data entities .
                 HashMap.Entry<String, Vote> winningEntry = getTheWinnerEntry();
+
                 if (winningEntry != null) { // The sentences were meaningful ( one of them at least )
                     Vote theWinnerVote = winningEntry.getValue();
                     String winningIntent = winningEntry.getKey();
@@ -186,6 +189,8 @@ public class IntentAnalyzerAndRecognizer implements
             case MUSIC_INTENT_TYPE_ENTITY:
             case GALLERY_INTENT_TYPE_ENTITY:
                 new BuiltInApps(this, theWinningSentences);break;
+            case WEATHER_INTENT_TYPE_ENTITY:
+                new Weather(this, theWinningSentences);break;
         }
 
     }
@@ -289,6 +294,13 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onSilentModeOn(String message) {mainActivityAndAnalyzerInterface.onSilentModeOn(message);}
     @Override public void onVibrationModeOn(String message) {mainActivityAndAnalyzerInterface.onVibrationModeOn(message);}
     @Override public void onSmsShow(String message) {mainActivityAndAnalyzerInterface.onSmsShow(message);}
+
+
+    @Override
+    public void onWeatherSucceeded(String url) {
+        mainActivityAndAnalyzerInterface.onWeatherSucceeded(url);
+    }
+
     @Override public void onSmsSendSucceeded(String contactName, String smsBody) {mainActivityAndAnalyzerInterface.onSmsSendSucceeded(contactName,smsBody);}
     @Override public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {mainActivityAndAnalyzerInterface.onSmsSendRequestingData(contactNameExists,smsBodyExists);}
     @Override public void onSmsSendFailed(String message) {mainActivityAndAnalyzerInterface.onSmsSendFailed(message);}

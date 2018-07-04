@@ -48,6 +48,7 @@ public interface CommunicationInterfaces {
         void onSearchRequestingData(String message);
         void onOpeningNonNativeAppSuccess(String appName);
         void onOpeningNonNativeAppRequestingData(String message);
+        void onWeatherSucceeded(String url);
 
     }
     interface AnalyzerNetworkUtilsInterface {
