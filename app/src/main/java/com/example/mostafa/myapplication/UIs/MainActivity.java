@@ -1,11 +1,17 @@
 package com.example.mostafa.myapplication.UIs;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,7 +39,8 @@ import java.util.ArrayList;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements
-        CommunicationInterfaces.MainActivityFunctionalityClassesInterface {
+        CommunicationInterfaces.MainActivityFunctionalityClassesInterface
+        , RecognitionListener {
 
     public static final String baseURL="https://api.wit.ai/";
     public static final String token="EDM7POFMZLZ6H2OB253HNBAVYPBKW2RC";
@@ -51,9 +58,12 @@ public class MainActivity extends AppCompatActivity implements
     public static final int WIFI_REQUEST = 500;
     public static final int BLUETOOTH_REQUEST = 600;
     public static final int BLUETOOTH_ADMIN_REQUEST = 700;
-    private Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    private static final int RECORD_AUDIO_REQUEST = 800;
+    private static int requestCode;
+    private final Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
-
+    private SpeechRecognizer speech;
+    private boolean isListening = false;
     Button b1 ;
     ListView lv;
 
@@ -74,18 +84,38 @@ public class MainActivity extends AppCompatActivity implements
 
             @Override
             public void onClick(View v) {
-                startActivityForResult(voiceRecognizer, REQUEST_DEFAULT);
+                //startActivityForResult(voiceRecognizer, REQUEST_DEFAULT);
+                if(!isListening) {
+                    isListening = true;
+                    requestCode = REQUEST_DEFAULT ;
+                    speech.startListening(voiceRecognizer);
+                }
+                else {
+                    isListening = false;
+                    speech.stopListening();
+                }
             }
         });
     }
     private void initializeTheVoiceRecognizer() {
+        /*voiceRecognizer.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
+        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar");*/
+        speech = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
+        speech.setRecognitionListener(this);
         voiceRecognizer.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
         voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar");
+        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-EG");
+        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,1000);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.RECORD_AUDIO},
+                    MainActivity.RECORD_AUDIO_REQUEST);
+        }
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode== RESULT_OK && data!=null) {
             ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -113,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         super.onActivityResult(requestCode, resultCode, data);
-    }
+    }*/
 
     @Override
     public void onAlarmSetSucceeded(String dateTime) {
@@ -128,7 +158,9 @@ public class MainActivity extends AppCompatActivity implements
         // TODO : open the simple activity or fragment or whatever of setting the alarm
         // TODO : open the voice recognition .
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-        startActivityForResult(voiceRecognizer,REQUEST_ALARM_DATA);
+        //startActivityForResult(voiceRecognizer,REQUEST_ALARM_DATA);
+        requestCode = REQUEST_ALARM_DATA;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
@@ -221,37 +253,44 @@ public class MainActivity extends AppCompatActivity implements
                     Toast.makeText(MainActivity.this, "Permission granted for the phone call", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for the phone call", Toast.LENGTH_SHORT).show();
-                }
+                }break;
             case READ_CONTACTS_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for reading contacts", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for reading contacts", Toast.LENGTH_SHORT).show();
-                }
+                }break;
             case WRITE_CALENDAR_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for writing in calender", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for writing in calender", Toast.LENGTH_SHORT).show();
-                }
+                }break;
             case WIFI_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change wifi status", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for change wifi status", Toast.LENGTH_SHORT).show();
-                }
+                }break;
             case BLUETOOTH_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change Bluetooth status", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for change Bluetooth status", Toast.LENGTH_SHORT).show();
-                }
+                }break;
             case BLUETOOTH_ADMIN_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for Bluetooth Amin", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Permission Denied for Bluetooth Amin", Toast.LENGTH_SHORT).show();
-                }
+                }break;
+            case RECORD_AUDIO_REQUEST:
+                if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission granted for voice recognition", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied for voice recognition", Toast.LENGTH_SHORT).show();
+                }break;
+
 
         }
     }
@@ -272,7 +311,9 @@ public class MainActivity extends AppCompatActivity implements
         else if(reminderFreeTextExists)
             missingData = "tamam, afakrak b eh ?";
         Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
-        startActivityForResult(voiceRecognizer,REQUEST_REMINDER_DATA);
+        //startActivityForResult(voiceRecognizer,REQUEST_REMINDER_DATA);
+        requestCode = REQUEST_REMINDER_DATA;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
@@ -285,7 +326,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onCallingNumberRequestingData(String message) {
         // TODO voice over : " tamam aklm meen "
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-        startActivityForResult(voiceRecognizer,REQUEST_PHONE_NUMBER);
+        //startActivityForResult(voiceRecognizer,REQUEST_PHONE_NUMBER);
+        requestCode = REQUEST_PHONE_NUMBER;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
@@ -340,7 +383,9 @@ public class MainActivity extends AppCompatActivity implements
             Toast.makeText(this, "Ab3at a2olo eh ?", Toast.LENGTH_LONG).show();
             //TODO VO: "a2ool eh fl sms"
         }
-        startActivityForResult(voiceRecognizer,REQUEST_SMS_DATA);
+        //startActivityForResult(voiceRecognizer,REQUEST_SMS_DATA);
+        requestCode = REQUEST_SMS_DATA;
+        speech.startListening(voiceRecognizer);
     }
     @Override
     public void onSmsSendFailed(String message){}
@@ -356,12 +401,14 @@ public class MainActivity extends AppCompatActivity implements
     public void onSearchRequestingData(String message) {
         // TODO voice over : "Eshta 3ayz tsearch 3ala eh "
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        startActivityForResult(voiceRecognizer,REQUEST_GOOGLE_SEARCH);
+        //startActivityForResult(voiceRecognizer,REQUEST_GOOGLE_SEARCH);
+        requestCode = REQUEST_GOOGLE_SEARCH;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
     public void onOpeningNonNativeAppSuccess(String appPackageName) {
-        // TODO voice over : "tamam hafta7 il app"
+        // TODO voice over : approval
         Toast.makeText(this, "Opening "+appPackageName, Toast.LENGTH_SHORT).show();
         if (OpenNonNativeApps.isPackageInstalled(this,appPackageName))
             OpenNonNativeApps.openApp(this,appPackageName);
@@ -371,13 +418,16 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onOpeningNonNativeAppRequestingData(String message) {
         // TODO voice over : "Eshta eh esm il app illi 3ayzo ytft7"
-        startActivityForResult(voiceRecognizer,REQUEST_OPEN_APPS);
+        //startActivityForResult(voiceRecognizer,REQUEST_OPEN_APPS);
+        requestCode = REQUEST_OPEN_APPS;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
     public void onWiFiOffSucceeded() {
 
         if(WiFiAndBluetooth.setWifi(this, false))
+            // TODO voice over : approval
             Toast.makeText(this,"Tamam El Wifi et2afal",Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,"Howa ma2fool aslan",Toast.LENGTH_LONG).show();
@@ -386,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onWiFiOnSucceeded() {
         if(WiFiAndBluetooth.setWifi(this, true))
+            // TODO voice over : approval
             Toast.makeText(this,"Tamam El Wifi etfata7",Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,"Howa mafto7 aslan",Toast.LENGTH_LONG).show();
@@ -395,6 +446,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBluetoothOnSucceeded() {
         if (WiFiAndBluetooth.setBluetooth(this, true))
+            // TODO voice over : approval
             Toast.makeText(this,"Tamam fata7t l bluetooth", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,"l bluetooth maftoo7 aslan", Toast.LENGTH_LONG).show();
@@ -402,7 +454,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBluetoothOffSucceeded() {
+
         if (WiFiAndBluetooth.setBluetooth(this, false))
+            // TODO voice over : approval
             Toast.makeText(this,"Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,"l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
@@ -410,11 +464,149 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMusicSucceeded() {
+        // TODO voice over : approval
         BuiltInApps.openMusic(this);
     }
 
     @Override
+    public void onGallerySucceeded() {
+        // TODO voice over : approval
+        BuiltInApps.openGallery(this);
+
+    }
+
+    @Override
     public void onCameraSucceeded() {
+        // TODO voice over : approval
         BuiltInApps.openCamera(this);
+    }
+
+    @Override
+    public void onReadyForSpeech(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+
+    }
+
+    @Override
+    public void onRmsChanged(float v) {
+
+    }
+
+    @Override
+    public void onBufferReceived(byte[] bytes) {
+
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        isListening = false;
+        speech.stopListening();
+    }
+
+    @Override
+    public void onError(int i) {
+        isListening = false;
+        Log.e("onError","Errooor");
+        switch (i) {
+
+            case SpeechRecognizer.ERROR_AUDIO:
+
+                Log.e("ERROR_AUDIO","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_CLIENT:
+
+                Log.e("ERROR_CLIENT","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+
+                Log.e("ERROR_PERMISSIONS","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_NETWORK:
+
+                Log.e("ERROR_NETWORK","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+
+                Log.e("ERROR_NETWORK_TIMEOUT","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_NO_MATCH:
+
+                Log.e("ERROR_NO_MATCH","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+
+                Log.e("ERROR_RECOGNIZER_BUSY","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_SERVER:
+
+                Log.e("ERROR_SERVER","Errooor");
+
+                break;
+
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+
+                Log.e("ERROR_SPEECH_TIMEOUT","Errooor");
+
+                break;
+
+            default:
+
+                Log.e("Default","Errooor");
+
+                break;
+        }
+
+
+    }
+
+    @Override
+    public void onResults(Bundle bundle) {
+        ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        if (results != null) {
+            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, results));
+            if (requestCode == REQUEST_DEFAULT) {
+                intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this, results);
+            } else if (requestCode == REQUEST_ALARM_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_REMINDER_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_PHONE_NUMBER) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_GOOGLE_SEARCH) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_OPEN_APPS) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_SMS_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
+            }
+        }
+    }
+
+    @Override
+    public void onPartialResults(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onEvent(int i, Bundle bundle) {
+
     }
 }

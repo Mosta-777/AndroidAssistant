@@ -48,6 +48,7 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String BLUETOOTH_OFF_INTENT_TYPE_ENTITY = "bluetooth_off";
     public static final String CAMERA_INTENT_TYPE_ENTITY = "camera";
     public static final String MUSIC_INTENT_TYPE_ENTITY = "music";
+    public static final String GALLERY_INTENT_TYPE_ENTITY="gallery";
     public static final String SMS_SHOW_INTENT_TYPE_ENTITY = "sms_show";
     public static final String SMS_SEND_INTENT_TYPE_ENTITY = "sms_send";
     public static final String GOOGLE_SEARCH_INTENT_TYPE_ENTITY = "google_search";
@@ -58,7 +59,7 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String SEARCH_FREE_TEXT_ENTITY = "search_free_text";
     public static final String OPEN_APPS_INTENT_TYPE_ENTITY="open_apps";
     public static final String APP_NAME_ENTITY = "app_name";
-    public static final double CONFIDENCE_THRESHOLD = 0.7 ;
+    static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
     private ArrayList<ArrayList<Entity>> sentences=new ArrayList<>();
@@ -183,6 +184,7 @@ public class IntentAnalyzerAndRecognizer implements
                 new OpenNonNativeApps(this,theWinningSentences);break;
             case CAMERA_INTENT_TYPE_ENTITY:
             case MUSIC_INTENT_TYPE_ENTITY:
+            case GALLERY_INTENT_TYPE_ENTITY:
                 new BuiltInApps(this, theWinningSentences);break;
         }
 
@@ -301,6 +303,7 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onBluetoothOffSucceeded() {mainActivityAndAnalyzerInterface.onBluetoothOffSucceeded();}
     @Override public void onCameraSucceeded(){mainActivityAndAnalyzerInterface.onCameraSucceeded();}
     @Override public void onMusicSucceeded(){mainActivityAndAnalyzerInterface.onMusicSucceeded();}
+    @Override public void onGallerySucceeded() {mainActivityAndAnalyzerInterface.onGallerySucceeded();}
 
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class

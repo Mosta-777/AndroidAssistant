@@ -33,7 +33,8 @@ public class BuiltInApps {
         switch (selectedIntent)
         {
             case 0:analyzerinterface.onCameraSucceeded();break;
-            case 1:analyzerinterface.onMusicSucceeded();
+            case 1:analyzerinterface.onMusicSucceeded();break;
+            case 2:analyzerinterface.onGallerySucceeded();break;
         }
 
     }
@@ -48,8 +49,11 @@ public class BuiltInApps {
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(IntentAnalyzerAndRecognizer.MUSIC_INTENT_TYPE_ENTITY,
                     winningSentences.get(i)))
                 return 1;
+            else if(IntentAnalyzerAndRecognizer.containsIntentValue(IntentAnalyzerAndRecognizer.GALLERY_INTENT_TYPE_ENTITY,
+                    winningSentences.get(i)))
+                return 2;
         }
-        return 2;
+        return 3;
     }
 
     public static void openCamera(Context context)
@@ -71,4 +75,15 @@ public class BuiltInApps {
         Intent intent = new Intent(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH);
         context.startActivity(intent);
     }
+
+    public static void openGallery(Context context){
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setType("image/*");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
 }
+
+
