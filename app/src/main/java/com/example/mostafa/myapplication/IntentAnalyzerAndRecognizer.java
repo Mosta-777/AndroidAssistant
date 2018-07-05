@@ -109,19 +109,28 @@ public class IntentAnalyzerAndRecognizer implements
                 if (winningEntry != null) { // The sentences were meaningful ( one of them at least )
                     Vote theWinnerVote = winningEntry.getValue();
                     String winningIntent = winningEntry.getKey();
+                    ArrayList<ArrayList<Entity>> theWinningSentences = theWinnerVote.getTheSentencesVoted();
                     if (theIntentRequestingData == null) {
-                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY))
+                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY)) {
+                            mainActivityAndAnalyzerInterface
+                                    .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentences.get(0)));
                             mainActivityAndAnalyzerInterface.onCancellingWhat("a cancel eh ? , mfeesh 7aga");
-                        ArrayList<ArrayList<Entity>> theWinningSentences = theWinnerVote.getTheSentencesVoted();
+                        }
                         goToTheAppropriateFunctionalityClass(winningIntent, theWinningSentences);
                     } else {
-                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY))
+                        if (winningIntent.equals(CANCEL_INTENT_TYPE_ENTITY)) {
+                            mainActivityAndAnalyzerInterface
+                                    .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentences.get(0)));
                             mainActivityAndAnalyzerInterface.onCancelling(theIntentRequestingData);
+                        }
                         else giveDataToIntentRequestingData();
                     }
                 }else { // The sentences had no meaning ( not a single one had an intent or crossed the confidence threshold )
-                    if (theIntentRequestingData == null)
+                    if (theIntentRequestingData == null) {
+                        mainActivityAndAnalyzerInterface
+                                .onChoosingTheWinningSentence(allPossibleStringsUserHasSaid.get(0));
                         mainActivityAndAnalyzerInterface.onFailingToUnderstand("msh fahm asdak ?");
+                    }
                     else giveDataToIntentRequestingData();
                 }
             }
@@ -139,11 +148,11 @@ public class IntentAnalyzerAndRecognizer implements
                 new Calling(this, sentences, Calling.MODE_REQUESTING_DATA);
                 break;
             case IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY:
-                new GoogleSearch(this,sentences,true);
+                new GoogleSearch(this,sentences,true);break;
             case IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY:
-                new OpenNonNativeApps(this,sentences);
+                new OpenNonNativeApps(this,sentences);break;
             case IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY:
-                new SendingSMS(this,sentences);
+                new SendingSMS(this,sentences);break;
         }
     }
 
@@ -160,8 +169,15 @@ public class IntentAnalyzerAndRecognizer implements
             case ALARM_DELETE_INTENT_TYPE_ENTITY:
                 new Alarm(this, theWinningSentences);break;
             case FLASH_ON_INTENT_TYPE_ENTITY:
-                mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");break;
+                ArrayList<Entity> theWinningSentence = theWinningSentences.get(0);
+                mainActivityAndAnalyzerInterface
+                        .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentence));
+                mainActivityAndAnalyzerInterface.onFlashLightOn("Opening the flashlight ...");
+                break;
             case FLASH_OFF_INTENT_TYPE_ENTITY:
+                ArrayList<Entity> theWinningSentence1= theWinningSentences.get(0);
+                mainActivityAndAnalyzerInterface
+                        .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentence1));
                 mainActivityAndAnalyzerInterface.onFlashLightOff("Closing the flashlight ...");break;
             case REMINDER_INTENT_TYPE_ENTITY:
                 new Reminder(this,theWinningSentences);break;
@@ -275,6 +291,11 @@ public class IntentAnalyzerAndRecognizer implements
         return false;
     }
 
+    public static String extractTextFromSentence(ArrayList<Entity> sentence){
+        return sentence.get(IntentAnalyzerAndRecognizer
+                        .containsEntity(IntentAnalyzerAndRecognizer.TEXT_ENTITY,sentence))
+                        .getValue().toString();
+    }
 
 
     // Tube functions
@@ -308,6 +329,7 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onSearchRequestingData(String message) {mainActivityAndAnalyzerInterface.onSearchRequestingData(message);}
     @Override public void onOpeningNonNativeAppSuccess(String appName) {mainActivityAndAnalyzerInterface.onOpeningNonNativeAppSuccess(appName);}
     @Override public void onOpeningNonNativeAppRequestingData(String message) {mainActivityAndAnalyzerInterface.onOpeningNonNativeAppRequestingData(message);}
+    @Override public void onChoosingTheWinningSentence(String winningSentence) {mainActivityAndAnalyzerInterface.onChoosingTheWinningSentence(winningSentence);}
     @Override public void onCallingNumberRequestingData(String message) {mainActivityAndAnalyzerInterface.onCallingNumberRequestingData(message);}
     @Override public void onWiFiOnSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOnSucceeded();}
     @Override public void onWiFiOffSucceeded() {mainActivityAndAnalyzerInterface.onWiFiOffSucceeded();}

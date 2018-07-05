@@ -44,14 +44,26 @@ public class BuiltInApps {
         for(int i=0;i<winningSentences.size();i++)
         {
             if(IntentAnalyzerAndRecognizer.containsIntentValue(IntentAnalyzerAndRecognizer.CAMERA_INTENT_TYPE_ENTITY,
-                    winningSentences.get(i)))
+                    winningSentences.get(i))) {
+                analyzerinterface
+                        .onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(winningSentences.get(i)));
                 return 0;
+            }
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(IntentAnalyzerAndRecognizer.MUSIC_INTENT_TYPE_ENTITY,
-                    winningSentences.get(i)))
+                    winningSentences.get(i))) {
+                analyzerinterface
+                        .onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(winningSentences.get(i)));
                 return 1;
+            }
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(IntentAnalyzerAndRecognizer.GALLERY_INTENT_TYPE_ENTITY,
-                    winningSentences.get(i)))
+                    winningSentences.get(i))) {
+                analyzerinterface
+                        .onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(winningSentences.get(i)));
                 return 2;
+            }
         }
         return 3;
     }

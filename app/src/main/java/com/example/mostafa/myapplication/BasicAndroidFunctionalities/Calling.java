@@ -47,19 +47,12 @@ public class Calling {
         this.currentMode=currentMode;
         int i = isThereShowContactsShowCallLogOrPhoneNumber(theWinningSentences);
         switch (i) {
-            case 0:
-                analyzerInterface.onShowCallLog("Tamam eshta il call log aho");
-                break;
-            case 1:
-                analyzerInterface.onShowContacts("Tamam il contacts ahy");
-                break;
-            case 2:
-                callUsingTheNumber(theWinningSentences);
-                break;
+            case 0:analyzerInterface.onShowCallLog("Tamam eshta il call log aho");break;
+            case 1:analyzerInterface.onShowContacts("Tamam il contacts ahy");break;
+            case 2:callUsingTheNumber(theWinningSentences);break;
             case 3:
                 // lw inta wslt hina ffy e7tmal mn il itneen ya fe free text ya fe information na2sa
-                determineTheBestSentenceForCallingByName(theWinningSentences);
-                break;
+                determineTheBestSentenceForCallingByName(theWinningSentences);break;
         }
     }
 
@@ -84,6 +77,8 @@ public class Calling {
                 String theContactName = theSentenceContainingTheContactName.get(IntentAnalyzerAndRecognizer
                         .containsEntity(IntentAnalyzerAndRecognizer.CONTACT_NAME_ENTITY, theSentenceContainingTheContactName))
                         .getValue().toString();
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theSentenceContainingTheContactName));
                 analyzerInterface.onCallingByName(theContactName);
             } else analyzerInterface.onCallingNumberRequestingData("Tamam aklm meen");
         }else if (currentMode == MODE_REQUESTING_DATA){
@@ -91,6 +86,7 @@ public class Calling {
             String theContactName = theSentenceContainingTheContactName.get(IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.TEXT_ENTITY,theSentenceContainingTheContactName))
                     .getValue().toString();
+            analyzerInterface.onChoosingTheWinningSentence(theContactName);
             analyzerInterface.onCallingByName(theContactName);
         }
 
@@ -100,13 +96,25 @@ public class Calling {
         for (int i = 0; i < theWinningSentences.size(); i++) {
             if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.CALL_LOG_SHOW_INTENT_TYPE_ENTITY
-                            , theWinningSentences.get(i))) return 0;
+                            , theWinningSentences.get(i))) {
+                analyzerInterface.onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 0;
+            }
             else if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.CONTACTS_SHOW_INTENT_TYPE_ENTITY
-                            , theWinningSentences.get(i))) return 1;
+                            , theWinningSentences.get(i))){
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 1;
+            }
             else if (IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY
-                            , theWinningSentences.get(i))!=-1) return 2;
+                            , theWinningSentences.get(i))!=-1) {
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 2;
+            }
         }
         return 3;
     }

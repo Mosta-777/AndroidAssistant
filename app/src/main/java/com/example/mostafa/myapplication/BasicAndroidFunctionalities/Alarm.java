@@ -41,10 +41,20 @@ public class Alarm {
         for (int i=0;i<alarmSentences.size();i++){
             if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.ALARM_SHOW_INTENT_TYPE_ENTITY
-                            ,alarmSentences.get(i))) return 0;
+                            ,alarmSentences.get(i))) {
+                analyzerinterface
+                        .onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(alarmSentences.get(i)));
+                return 0;
+            }
             else if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.ALARM_DELETE_INTENT_TYPE_ENTITY
-                            ,alarmSentences.get(i))) return 1;
+                            ,alarmSentences.get(i))){
+                analyzerinterface
+                        .onChoosingTheWinningSentence
+                                (IntentAnalyzerAndRecognizer.extractTextFromSentence(alarmSentences.get(i)));
+                return 1;
+            }
         }
         return 2;
     }
@@ -61,6 +71,9 @@ public class Alarm {
             }
         }
         if (selectedSentence!=null){
+            analyzerinterface
+                    .onChoosingTheWinningSentence
+                            (IntentAnalyzerAndRecognizer.extractTextFromSentence(selectedSentence));
             int dateTimeEntityIndex=IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,selectedSentence);
             int durationEntityIndex=IntentAnalyzerAndRecognizer
@@ -80,11 +93,14 @@ public class Alarm {
             }
         }else {
             // This means that none of the sentences contains one and only one datetime or duration .
+            analyzerinterface
+                    .onChoosingTheWinningSentence
+                            (IntentAnalyzerAndRecognizer.extractTextFromSentence(alarmSentences.get(0)));
             analyzerinterface.onAlarmSetRequestingData("tamam , azboto il sa3a kam ?");
         }
 
     }
-    public static boolean isThereOnlyOne(String entityName,ArrayList<Entity> sentence){
+    static boolean isThereOnlyOne(String entityName, ArrayList<Entity> sentence){
         int counter=0;
         for (int i=0;i<sentence.size();i++){
             if (sentence.get(i).getName().equals(entityName)){

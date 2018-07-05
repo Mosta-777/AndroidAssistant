@@ -5,60 +5,21 @@
     android:background="@drawable/bg"
     android:gravity="center"
     android:orientation="vertical">
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:scrollbars="vertical"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="bottom"
-        android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/otput1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginBottom="7dp"
-                android:layout_marginLeft="55dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="7dp"
-                android:background="@drawable/shape"
-                android:padding="12dp"
-                android:text="أقدر أساعدك ازاي؟"
-                android:textColor="#fff"
-
-                android:textSize="30sp" />
-
-            <TextView
-                android:id="@+id/input1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-
-                android:layout_marginBottom="7dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="55dp"
-                android:layout_marginTop="7dp"
-
-                android:background="@drawable/shape2"
-
-                android:padding="12dp"
-                android:text="ازيك"
-                android:textColor="#036"
-
-                android:textSize="30sp" />
-
-    </LinearLayout>
-
+        android:layout_width="match_parent" />
     <LinearLayout
         android:id="@+id/layoutspeech"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="15dp"
-        android:visibility="visible">
-
+        android:visibility="visible"
+        android:baselineAligned="false">
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -129,12 +90,10 @@
             android:background="@drawable/shape3"
             android:gravity="center_vertical"
             android:orientation="horizontal">
-
             <Button
                 android:id="@+id/btnsend"
                 android:layout_width="43dp"
                 android:layout_height="wrap_content"
-
                 android:background="#00000000"
                 android:drawableRight="@drawable/btnsend" />
 
@@ -142,14 +101,12 @@
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:layout_marginLeft="7dp"
                 android:layout_marginRight="7dp"
                 android:background="#00000000"
                 android:textColor="#666666"
                 android:textSize="30sp"
-                tools:text="اكتب رسالة!" />
+                tools:hint="اكتب رسالة!" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

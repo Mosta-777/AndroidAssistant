@@ -47,20 +47,30 @@ public class WiFiAndBluetooth {
         for(int i=0;i<selectedSentences.size();i++)
         {
             if(IntentAnalyzerAndRecognizer.containsIntentValue(
-                    IntentAnalyzerAndRecognizer.WIFI_ON_INTENT_TYPE_ENTITY,selectedSentences.get(0)))
+                    IntentAnalyzerAndRecognizer.WIFI_ON_INTENT_TYPE_ENTITY,selectedSentences.get(0))) {
+                analyzerinterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(selectedSentences.get(0)));
                 return 0;
-
+            }
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(
-                    IntentAnalyzerAndRecognizer.WIFI_OFF_INTENT_TYPE_ENTITY,selectedSentences.get(0)))
+                    IntentAnalyzerAndRecognizer.WIFI_OFF_INTENT_TYPE_ENTITY,selectedSentences.get(0))) {
+                analyzerinterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(selectedSentences.get(0)));
                 return 1;
+            }
 
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(
-                    IntentAnalyzerAndRecognizer.BLUETOOTH_ON_INTENT_TYPE_ENTITY,selectedSentences.get(0)))
+                    IntentAnalyzerAndRecognizer.BLUETOOTH_ON_INTENT_TYPE_ENTITY,selectedSentences.get(0))) {
+                analyzerinterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(selectedSentences.get(0)));
                 return 2;
-
+            }
             else if(IntentAnalyzerAndRecognizer.containsIntentValue(
-                    IntentAnalyzerAndRecognizer.BLUETOOTH_OFF_INTENT_TYPE_ENTITY,selectedSentences.get(0)))
+                    IntentAnalyzerAndRecognizer.BLUETOOTH_OFF_INTENT_TYPE_ENTITY,selectedSentences.get(0))) {
+                analyzerinterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(selectedSentences.get(0)));
                 return 3;
+            }
         }
         return 3;
     }

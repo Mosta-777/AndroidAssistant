@@ -72,9 +72,15 @@ public class OpenNonNativeApps {
     private void determineTheBestSentenceForOpeningApp(ArrayList<ArrayList<Entity>> theWinningSentences) {
         int index= IntentAnalyzerAndRecognizer.containsEntitySentenceVersion(IntentAnalyzerAndRecognizer
                 .APP_NAME_ENTITY,theWinningSentences);
-        if (index==-1)analyzerInterface.onOpeningNonNativeAppRequestingData("Tamam aft7 anhy app");
+        if (index==-1){
+            analyzerInterface.onChoosingTheWinningSentence
+                    (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(0)));
+            analyzerInterface.onOpeningNonNativeAppRequestingData("Tamam aft7 anhy app");
+        }
         else {
             ArrayList<Entity> sentenceContainingData=theWinningSentences.get(index);
+            analyzerInterface.onChoosingTheWinningSentence
+                    (IntentAnalyzerAndRecognizer.extractTextFromSentence(sentenceContainingData));
             String nameOfApp = sentenceContainingData.get(IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.APP_NAME_ENTITY,sentenceContainingData))
                     .getValue().toString();

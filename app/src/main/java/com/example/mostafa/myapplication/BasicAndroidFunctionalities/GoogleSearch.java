@@ -24,6 +24,8 @@ public class GoogleSearch {
         if (!requestingDataMode) determineTheBestSentenceForTheSearch(theWinningSentences);
         else {
             ArrayList<Entity> chosenSentence=theWinningSentences.get(0);
+            analyzerInterface.onChoosingTheWinningSentence
+                    (IntentAnalyzerAndRecognizer.extractTextFromSentence(chosenSentence));
             analyzerInterface.onSearchSuccess(chosenSentence.get(IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.TEXT_ENTITY,chosenSentence))
                     .getValue().toString());
@@ -33,9 +35,15 @@ public class GoogleSearch {
     private void determineTheBestSentenceForTheSearch(ArrayList<ArrayList<Entity>> theWinningSentences) {
         int index=IntentAnalyzerAndRecognizer.containsEntitySentenceVersion(IntentAnalyzerAndRecognizer
                         .SEARCH_FREE_TEXT_ENTITY,theWinningSentences);
-        if (index==-1)analyzerInterface.onSearchRequestingData("Tamam asearch 3ala eh ?");
+        if (index==-1){
+            analyzerInterface.onChoosingTheWinningSentence
+                    (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(0)));
+            analyzerInterface.onSearchRequestingData("Tamam asearch 3ala eh ?");
+        }
         else {
             ArrayList<Entity> sentenceContainingData=theWinningSentences.get(index);
+            analyzerInterface.onChoosingTheWinningSentence
+                    (IntentAnalyzerAndRecognizer.extractTextFromSentence(sentenceContainingData));
             String searchQuery = sentenceContainingData
                     .get(IntentAnalyzerAndRecognizer
                     .containsEntity(IntentAnalyzerAndRecognizer.SEARCH_FREE_TEXT_ENTITY,sentenceContainingData))

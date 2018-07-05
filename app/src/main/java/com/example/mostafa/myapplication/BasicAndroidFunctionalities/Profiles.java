@@ -37,13 +37,25 @@ public class Profiles {
         for (int i=0;i<theWinningSentences.size();i++){
             if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.NORMAL_MODE_INTENT_TYPE_ENTITY
-                            ,theWinningSentences.get(i))) return 0;
+                            ,theWinningSentences.get(i))){
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 0;
+            }
             else if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.SILENT_MODE_INTENT_TYPE_ENTITY
-                            ,theWinningSentences.get(i))) return 1;
+                            ,theWinningSentences.get(i))) {
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 1;
+            }
             else if (IntentAnalyzerAndRecognizer
                     .containsIntentValue(IntentAnalyzerAndRecognizer.VIBRATION_MODE_INTENT_TYPE_ENTITY
-                            ,theWinningSentences.get(i))) return 2;
+                            ,theWinningSentences.get(i))){
+                analyzerInterface.onChoosingTheWinningSentence
+                        (IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i)));
+                return 2;
+            }
         }
         return 0;
     }

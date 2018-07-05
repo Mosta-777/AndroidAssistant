@@ -1,7 +1,6 @@
 package com.example.mostafa.myapplication.UIs;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.speech.RecognitionListener;
@@ -12,12 +11,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.style.ForegroundColorSpan;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Alarm;
@@ -33,11 +35,13 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Weather;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
+import com.example.mostafa.myapplication.POJOS.Message;
 import com.example.mostafa.myapplication.POJOS.Forecast;
 import com.example.mostafa.myapplication.R;
 import com.example.mostafa.myapplication.service.UserClient;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 import retrofit2.Retrofit;
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public static final String baseURL="https://api.wit.ai/";
     public static final String token="EDM7POFMZLZ6H2OB253HNBAVYPBKW2RC";
-    private final int REQUEST_DEFAULT = 1;
+    private static final int REQUEST_DEFAULT = 1;
     private final int REQUEST_ALARM_DATA = 2;
     private final int REQUEST_REMINDER_DATA = 3;
     private static final int REQUEST_PHONE_NUMBER = 4;
@@ -63,14 +67,19 @@ public class MainActivity extends AppCompatActivity implements
     public static final int BLUETOOTH_REQUEST = 600;
     public static final int BLUETOOTH_ADMIN_REQUEST = 700;
     private static final int RECORD_AUDIO_REQUEST = 800;
-    private static int requestCode;
+    private static int requestCode = REQUEST_DEFAULT;
     private final Intent voiceRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     private IntentAnalyzerAndRecognizer intentAnalyzerAndRecognizer;
     private SpeechRecognizer speech;
     private boolean isListening = false;
-    Button b1 ;
-    ListView lv;
-    TextView tv;
+    private Button startOrStopListening,openKeyboard,closeKeyboard,sendCommand;
+    private RecyclerView recyclerView;
+    private EditText editText;
+    private ArrayList<Message> messages = new ArrayList<>() ;
+    private MessageListAdapter mMessageAdapter;
+    private LinearLayout layoutkeyboard, layoutspeech;
+    private Random randomNumber= new Random();
+
 
     Retrofit.Builder builder=new Retrofit.Builder()
             .baseUrl(baseURL)
@@ -81,31 +90,69 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_new);
+        getSupportActionBar().hide();
+        bindTheViews();
         initializeTheVoiceRecognizer();
-        lv = (ListView) findViewById(R.id.listview1);
-        b1 = (Button) findViewById(R.id.button1);
-        tv = findViewById(R.id.rms);
-        b1.setOnClickListener(new View.OnClickListener() {
-
+        startOrStopListening.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivityForResult(voiceRecognizer, REQUEST_DEFAULT);
                 if(!isListening) {
-                    requestCode = REQUEST_DEFAULT ;
                     speech.startListening(voiceRecognizer);
-                }
-                else {
+                } else {
                     speech.stopListening();
                 }
             }
         });
+        openKeyboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layoutspeech.setVisibility(View.GONE);
+                layoutkeyboard.setVisibility(View.VISIBLE);
+            }
+        });
+        closeKeyboard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layoutkeyboard.setVisibility(View.GONE);
+                layoutspeech.setVisibility(View.VISIBLE);
+            }
+        });
+        sendCommand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String command = editText.getText().toString();
+                if (!command.equals("")){
+                    editText.setText("");
+                    ArrayList<String> theCommand= new ArrayList<>();
+                    theCommand.add(command);
+                    goToTheAnalyzer(theCommand);
+                }
+            }
+        });
+    }
+    private void bindTheViews() {
+        messages.add(new Message("ازيك , ازاي اقدر اساعدك ؟",false));
+        layoutkeyboard = (LinearLayout) findViewById(R.id.layoutkeyboard);
+        layoutspeech = (LinearLayout) findViewById(R.id.layoutspeech);
+        layoutkeyboard.setVisibility(View.GONE);
+        layoutspeech.setVisibility(View.VISIBLE);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        startOrStopListening = (Button) findViewById(R.id.btnSpeech);
+        openKeyboard = (Button) findViewById(R.id.btnkeyboard);
+        closeKeyboard = (Button) findViewById(R.id.btnnokeyboard);
+        sendCommand = (Button) findViewById(R.id.btnsend);
+        editText = (EditText) findViewById(R.id.editText);
+        mMessageAdapter = new MessageListAdapter(this, messages);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setStackFromEnd(true);
+        layoutManager.setSmoothScrollbarEnabled(true);
+        //layoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(mMessageAdapter);
     }
     private void initializeTheVoiceRecognizer() {
-        /*voiceRecognizer.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
-        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar");*/
         speech = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
         speech.setRecognitionListener(this);
         voiceRecognizer.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass().getPackage().getName());
@@ -114,21 +161,17 @@ public class MainActivity extends AppCompatActivity implements
         voiceRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-EG");
         voiceRecognizer.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,1000);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.RECORD_AUDIO},
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
                     MainActivity.RECORD_AUDIO_REQUEST);
         }
     }
-
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode== RESULT_OK && data!=null) {
-            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            float[] confidence = data.getFloatArrayExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
-            ArrayList<String> endResults = new ArrayList<>();
-            for (int i = 0; i < results.size(); i++) {
-                endResults.add(results.get(i) + "     " + confidence[i]);
-            }
-            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, endResults));
+    @Override
+    public void onResults(Bundle bundle) {
+        ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        goToTheAnalyzer(results);
+    }
+    public void goToTheAnalyzer(ArrayList<String> results){
+        if (results != null) {
             if (requestCode == REQUEST_DEFAULT) {
                 intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this, results);
             } else if (requestCode == REQUEST_ALARM_DATA) {
@@ -137,46 +180,75 @@ public class MainActivity extends AppCompatActivity implements
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
             } else if (requestCode == REQUEST_PHONE_NUMBER) {
                 intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
-            } else if (requestCode==REQUEST_GOOGLE_SEARCH){
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
-            } else if (requestCode==REQUEST_OPEN_APPS){
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY);
-            } else if(requestCode==REQUEST_SMS_DATA){
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results,IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_GOOGLE_SEARCH) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_OPEN_APPS) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY);
+            } else if (requestCode == REQUEST_SMS_DATA) {
+                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
             }
         }
+    }
 
-        super.onActivityResult(requestCode, resultCode, data);
-    }*/
+    @Override
+    public void onChoosingTheWinningSentence(String winningSentence) {
+        messages.add(new Message(winningSentence,true));
+        mMessageAdapter.notifyDataSetChanged();
+        scrollToBottom();
+    }
+
+    private void writeAnApprovalOnChatAndPlayApprovalAudio() {
+        int randomNo = randomNumber.nextInt(5) + 1;
+        String stringID ="approval_"+randomNo;
+        String appMessage = getResources().getString(
+                getResources().getIdentifier(stringID
+                        , "string", getPackageName())) ;
+        messages.add(new Message(appMessage,false));
+        mMessageAdapter.notifyDataSetChanged();
+        scrollToBottom();
+        // TODO : play audio with name stringID
+    }
+
+    private void writeAndPlayAudio(String code, int max){
+        int randomNo = randomNumber.nextInt(max) + 1;
+        String stringAndAudioName=code+"_"+randomNo;
+        String appMessage = getResources().getString(
+                getResources().getIdentifier(stringAndAudioName
+                        , "string", getPackageName())) ;
+        messages.add(new Message(appMessage,false));
+        mMessageAdapter.notifyDataSetChanged();
+        scrollToBottom();
+        // TODO : play audio with name stringAndAudioName
+    }
+
 
     @Override
     public void onAlarmSetSucceeded(String dateTime) {
-        if (!Alarm.setAlarm(this,dateTime))
-            Toast.makeText(this,getResources().getString(R.string.set_alarm_failed),Toast.LENGTH_LONG).show();
-        else ;// TODO for voice over : " Tamam eshta il mnbh itzabat "
+        if (!Alarm.setAlarm(this,dateTime)) {
+            writeAndPlayAudio("alarm_set_failed",2);
+            Toast.makeText(this, getResources().getString(R.string.set_alarm_failed), Toast.LENGTH_LONG).show();
+        }
+        else  writeAndPlayAudio("alarm_set_appr",2);
+        requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onAlarmSetRequestingData(String message) {
-        // TODO for voice over : " Eshta 3ayz tzboto 3ala il sa3a kam "
-        // TODO : open the simple activity or fragment or whatever of setting the alarm
-        // TODO : open the voice recognition .
+        writeAndPlayAudio("alarm_set_when",2);
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-        //startActivityForResult(voiceRecognizer,REQUEST_ALARM_DATA);
         requestCode = REQUEST_ALARM_DATA;
         speech.startListening(voiceRecognizer);
     }
-
     @Override
     public void onAlarmShowSucceeded(String message) {
-        // TODO for voice over : " Tammam eshta il mnbhat ahy "
+        writeAnApprovalOnChatAndPlayApprovalAudio();
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         Alarm.showAlarm(this);
     }
-
     @Override
     public void onAlarmDeleteSucceeded(String message) {
         // TODO for voice over : " T2dar tms7o mn il app "
+        writeAndPlayAudio("alarm_delete_appr",1);
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         Alarm.showAlarm(this);
     }
@@ -190,25 +262,27 @@ public class MainActivity extends AppCompatActivity implements
     public void onFlashLightOn(String message) {
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
-        if (flashlight.flashLightOn())
-            // TODO voice over : " Tamam " or " Eshta "
-            Toast.makeText(this,"Opened flashlight successfully .",Toast.LENGTH_SHORT).show();
+        if (flashlight.flashLightOn()) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Opened flashlight successfully .", Toast.LENGTH_SHORT).show();
+        }
         else Toast.makeText(this,"Couldn't open the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFlashLightOff(String message) {
-        // TODO voice over : " Tamam " or " Eshta "
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
-        if (flashlight.flashLightOff())
-            Toast.makeText(this,"Closed flashlight successfully .",Toast.LENGTH_SHORT).show();
+        if (flashlight.flashLightOff()) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Closed flashlight successfully .", Toast.LENGTH_SHORT).show();
+        }
         else Toast.makeText(this,"Couldn't close the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onCancelling(String intentToCancel) {
-        // TODO voice over : " Tamam cancelt "
+        writeAnApprovalOnChatAndPlayApprovalAudio();
         Toast.makeText(this," Tamam cancelt "+intentToCancel,Toast.LENGTH_LONG).show();
         if(intentToCancel.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
             Reminder.resetReminder();
@@ -216,32 +290,267 @@ public class MainActivity extends AppCompatActivity implements
             SendingSMS.clearData();
         // if the intent to cancel stored data in the shared pref. , delete it
         // else do nothing
+        requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onCancellingWhat(String message) {
-        // TODO voice over : " a cancel eh mfeesh 7aga "
+        writeAndPlayAudio("cancel_what",1);
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onFailingToUnderstand(String message) {
-        // TODO voice over : " msh fahm inta asdk eh m3lsh " or " deh results il web "
+        writeAndPlayAudio("no_intent",2);
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onShowCallLog(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Calling.showCallLog(this);
     }
 
     @Override
     public void onShowContacts(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Calling.showContacts(this);
     }
 
+    @Override
+    public void onReminderSucceeded(String dateTime, String reminderFreeText) {
+        if(Reminder.setReminder(MainActivity.this, dateTime, reminderFreeText)) {
+            Toast.makeText(this, "Tamam reminder is set at  " + reminderFreeText + "   at  " + dateTime, Toast.LENGTH_LONG).show();
+            writeAndPlayAudio("reminder_appr",3);
+        }else
+            Toast.makeText(this,"Fe moshkla",Toast.LENGTH_LONG).show();
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists) {
+        String missingData = null;
+        if(dateTimeExists) {
+            missingData = "tmam, afakar beh emta ?";
+            writeAndPlayAudio("reminder_time",2);
+        }
+        else if(reminderFreeTextExists) {
+            writeAndPlayAudio("reminder_free_text",2);
+            missingData = "tamam, afakrak b eh ?";
+        }
+        Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
+        requestCode = REQUEST_REMINDER_DATA;
+        speech.startListening(voiceRecognizer);
+    }
+
+    @Override
+    public void onCallingNumberSucceeded(String phoneNumber) {
+        writeAndPlayAudio("calling_appr",2);
+        Calling.call(this,phoneNumber);
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onCallingNumberRequestingData(String message) {
+        writeAndPlayAudio("calling_who",2);
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        requestCode = REQUEST_PHONE_NUMBER;
+        speech.startListening(voiceRecognizer);
+    }
+
+    @Override
+    public void onCallingByName(String name) {
+        Calling.callByName(this,name);
+    }
+
+    @Override
+    public void onCallingContactNotFound(String message) {
+        writeAndPlayAudio("calling_no",2);
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onNormalModeOn(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnNormalMode(this);
+    }
+
+    @Override
+    public void onSilentModeOn(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnSilentMode(this);
+    }
+
+    @Override
+    public void onVibrationModeOn(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Profiles.putOnVibrationMode(this);
+    }
+
+    @Override
+    public void onSmsShow(String message) {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        SendingSMS.showSms(this);
+    }
+
+    @Override
+    public void onSmsSendSucceeded(String contactName, String smsBody) {
+        writeAndPlayAudio("sms_send_appr",2);
+        SendingSMS.sendMessage(this,contactName,smsBody);
+        Toast.makeText(this, "Sending "+smsBody+" to "+contactName, Toast.LENGTH_SHORT).show();
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
+        if(!contactNameExists && !smsBodyExists){
+            Toast.makeText(this,"Ab3at l sms l meen",Toast.LENGTH_LONG).show();
+            writeAndPlayAudio("sms_send_who",2);
+        }
+        else if(!smsBodyExists) {
+            Toast.makeText(this, "Ab3at a2olo eh ?", Toast.LENGTH_LONG).show();
+            writeAndPlayAudio("sms_send_what",2);
+        }
+        requestCode = REQUEST_SMS_DATA;
+        speech.startListening(voiceRecognizer);
+    }
+    @Override
+    public void onSmsSendFailed(String message){}
+
+    @Override
+    public void onSearchSuccess(String message) {
+        writeAndPlayAudio("google_search_approval",2);
+        Toast.makeText(this, "Tamam hasearch", Toast.LENGTH_SHORT).show();
+        GoogleSearch.googleSearch(this,message);
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onSearchRequestingData(String message) {
+        writeAndPlayAudio("google_search_what",2);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        requestCode = REQUEST_GOOGLE_SEARCH;
+        speech.startListening(voiceRecognizer);
+    }
+
+    @Override
+    public void onOpeningNonNativeAppSuccess(String appPackageName) {
+        Toast.makeText(this, "Opening "+appPackageName, Toast.LENGTH_SHORT).show();
+        if (OpenNonNativeApps.isPackageInstalled(this,appPackageName)) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            OpenNonNativeApps.openApp(this, appPackageName);
+        }
+        else {
+            Toast.makeText(this, "Il app msh installed 3andk", Toast.LENGTH_SHORT).show();
+            writeAndPlayAudio("app_open_no",2);
+        }
+        requestCode = REQUEST_DEFAULT ;
+    }
+
+    @Override
+    public void onOpeningNonNativeAppRequestingData(String message) {
+        writeAndPlayAudio("app_open_what",1);
+        requestCode = REQUEST_OPEN_APPS;
+        speech.startListening(voiceRecognizer);
+    }
+
+
+    @Override
+    public void onWiFiOffSucceeded() {
+        if(WiFiAndBluetooth.setWifi(this, false)) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Tamam El Wifi et2afal", Toast.LENGTH_LONG).show();
+        }
+        else {
+            writeAndPlayAudio("already_closed",1);
+            Toast.makeText(this, "Howa ma2fool aslan", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onWiFiOnSucceeded() {
+        if(WiFiAndBluetooth.setWifi(this, true)) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Tamam El Wifi etfata7", Toast.LENGTH_LONG).show();
+        }
+        else {
+            writeAndPlayAudio("already_opened",1);
+            Toast.makeText(this, "Howa mafto7 aslan", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    @Override
+    public void onBluetoothOnSucceeded() {
+        if (WiFiAndBluetooth.setBluetooth(this, true)) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Tamam fata7t l bluetooth", Toast.LENGTH_LONG).show();
+        }
+        else {
+            writeAndPlayAudio("already_opened",1);
+            Toast.makeText(this, "l bluetooth maftoo7 aslan", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onBluetoothOffSucceeded() {
+
+        if (WiFiAndBluetooth.setBluetooth(this, false)) {
+            writeAnApprovalOnChatAndPlayApprovalAudio();
+            Toast.makeText(this, "Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
+        }
+        else {
+            writeAndPlayAudio("already_closed",1);
+            Toast.makeText(this, "l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onMusicSucceeded() {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        BuiltInApps.openMusic(this);
+    }
+
+    @Override
+    public void onGallerySucceeded() {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        BuiltInApps.openGallery(this);
+    }
+
+    @Override
+    public void onCameraSucceeded() {
+        writeAnApprovalOnChatAndPlayApprovalAudio();
+        BuiltInApps.openCamera(this);
+    }
+    @Override
+    public void onWeatherSucceeded(String url) {
+        ArrayList<Forecast> weather = null;
+        try{
+            weather = new Weather.fetchForecastData().execute(url).get();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        writeAndPlayAudio("weather",1);
+        ArrayList<String> weatherData = Weather.getWeather(weather);
+        Toast.makeText(this,weatherData.get(0)+
+                "\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),Toast.LENGTH_LONG).show();
+        messages.add(new Message(weatherData.get(0)+
+                "\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),false));
+        scrollToBottom();
+    }
+
+    @Override public void onReadyForSpeech(Bundle bundle) {isListening = true ;}
+    @Override public void onBeginningOfSpeech() {isListening = true ;}
+    @Override public void onEndOfSpeech() {isListening = false;}
+    @Override public void onError(int i) {}
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch(requestCode) {
@@ -298,332 +607,11 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     }
-
-    @Override
-    public void onReminderSucceeded(String dateTime, String reminderFreeText) {
-        if(Reminder.setReminder(MainActivity.this, dateTime, reminderFreeText))
-            Toast.makeText(this,"Tamam reminder is set at  " + reminderFreeText+ "   at  " + dateTime,Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this,"Fe moshkla",Toast.LENGTH_LONG).show();
+    public void scrollToBottom() {
+        recyclerView.scrollToPosition(messages.size() - 1);
     }
-
-    @Override
-    public void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists) {
-        String missingData = null;
-        if(dateTimeExists)
-            missingData = "tmam, afakar beh emta ?";
-        else if(reminderFreeTextExists)
-            missingData = "tamam, afakrak b eh ?";
-        Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
-        //startActivityForResult(voiceRecognizer,REQUEST_REMINDER_DATA);
-        requestCode = REQUEST_REMINDER_DATA;
-        speech.startListening(voiceRecognizer);
-    }
-
-    @Override
-    public void onCallingNumberSucceeded(String phoneNumber) {
-        // TODO voice over : " tamam htsl dlw2ty "
-        Calling.call(this,phoneNumber);
-    }
-
-    @Override
-    public void onCallingNumberRequestingData(String message) {
-        // TODO voice over : " tamam aklm meen "
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-        //startActivityForResult(voiceRecognizer,REQUEST_PHONE_NUMBER);
-        requestCode = REQUEST_PHONE_NUMBER;
-        speech.startListening(voiceRecognizer);
-    }
-
-    @Override
-    public void onCallingByName(String name) {
-        Calling.callByName(this,name);
-    }
-
-    @Override
-    public void onCallingContactNotFound(String message) {
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onNormalModeOn(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        Profiles.putOnNormalMode(this);
-    }
-
-    @Override
-    public void onSilentModeOn(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        Profiles.putOnSilentMode(this);
-    }
-
-    @Override
-    public void onVibrationModeOn(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        Profiles.putOnVibrationMode(this);
-    }
-
-    @Override
-    public void onSmsShow(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        SendingSMS.showSms(this);
-    }
-
-    @Override
-    public void onSmsSendSucceeded(String contactName, String smsBody) {
-        SendingSMS.sendMessage(this,contactName,smsBody);
-        Toast.makeText(this, "Sending "+smsBody+" to "+contactName, Toast.LENGTH_SHORT).show();
-        //TODO VO: "Lw 3ayz t confirm dos enter"
-
-    }
-
-    @Override
-    public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
-        if(!contactNameExists && !smsBodyExists){
-            Toast.makeText(this,"Ab3at l sms l meen",Toast.LENGTH_LONG).show();
-            //TODO VO: "Ab3at l sms l meen"
-        }
-        else if(!smsBodyExists) {
-            Toast.makeText(this, "Ab3at a2olo eh ?", Toast.LENGTH_LONG).show();
-            //TODO VO: "a2ool eh fl sms"
-        }
-        //startActivityForResult(voiceRecognizer,REQUEST_SMS_DATA);
-        requestCode = REQUEST_SMS_DATA;
-        speech.startListening(voiceRecognizer);
-    }
-    @Override
-    public void onSmsSendFailed(String message){}
-
-    @Override
-    public void onSearchSuccess(String message) {
-        // TODO voice over : "Tamam hya de ntayg il search"
-        Toast.makeText(this, "Tamam hasearch", Toast.LENGTH_SHORT).show();
-        GoogleSearch.googleSearch(this,message);
-    }
-
-    @Override
-    public void onSearchRequestingData(String message) {
-        // TODO voice over : "Eshta 3ayz tsearch 3ala eh "
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        //startActivityForResult(voiceRecognizer,REQUEST_GOOGLE_SEARCH);
-        requestCode = REQUEST_GOOGLE_SEARCH;
-        speech.startListening(voiceRecognizer);
-    }
-
-    @Override
-    public void onOpeningNonNativeAppSuccess(String appPackageName) {
-        // TODO voice over : approval
-        Toast.makeText(this, "Opening "+appPackageName, Toast.LENGTH_SHORT).show();
-        if (OpenNonNativeApps.isPackageInstalled(this,appPackageName))
-            OpenNonNativeApps.openApp(this,appPackageName);
-        else Toast.makeText(this, "Il app msh installed 3andk", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onOpeningNonNativeAppRequestingData(String message) {
-        // TODO voice over : "Eshta eh esm il app illi 3ayzo ytft7"
-        //startActivityForResult(voiceRecognizer,REQUEST_OPEN_APPS);
-        requestCode = REQUEST_OPEN_APPS;
-        speech.startListening(voiceRecognizer);
-    }
-
-    @Override
-    public void onWiFiOffSucceeded() {
-
-        if(WiFiAndBluetooth.setWifi(this, false))
-            // TODO voice over : approval
-            Toast.makeText(this,"Tamam El Wifi et2afal",Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this,"Howa ma2fool aslan",Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onWiFiOnSucceeded() {
-        if(WiFiAndBluetooth.setWifi(this, true))
-            // TODO voice over : approval
-            Toast.makeText(this,"Tamam El Wifi etfata7",Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this,"Howa mafto7 aslan",Toast.LENGTH_LONG).show();
-
-    }
-
-    @Override
-    public void onBluetoothOnSucceeded() {
-        if (WiFiAndBluetooth.setBluetooth(this, true))
-            // TODO voice over : approval
-            Toast.makeText(this,"Tamam fata7t l bluetooth", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this,"l bluetooth maftoo7 aslan", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onBluetoothOffSucceeded() {
-
-        if (WiFiAndBluetooth.setBluetooth(this, false))
-            // TODO voice over : approval
-            Toast.makeText(this,"Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this,"l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onMusicSucceeded() {
-        // TODO voice over : approval
-        BuiltInApps.openMusic(this);
-    }
-
-    @Override
-    public void onGallerySucceeded() {
-        // TODO voice over : approval
-        BuiltInApps.openGallery(this);
-
-    }
-
-    @Override
-    public void onCameraSucceeded() {
-        // TODO voice over : approval
-        BuiltInApps.openCamera(this);
-    }
-
-    @Override
-    public void onWeatherSucceeded(String url) {
-        ArrayList<Forecast> weather = null;
-        try{
-            weather = new Weather.fetchForecastData().execute(url).get();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        ArrayList<String> weatherData = Weather.getWeather(weather);
-        Toast.makeText(this,weatherData.get(0)+"\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onReadyForSpeech(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onBeginningOfSpeech() {
-        isListening = true;
-    }
-
-    @Override
-    public void onRmsChanged(float v) {
-        tv.setText(String.valueOf(v));
-    }
-
-    @Override
-    public void onBufferReceived(byte[] bytes) {
-
-    }
-
-    @Override
-    public void onEndOfSpeech() {
-        isListening = false;
-        speech.stopListening();
-    }
-
-    @Override
-    public void onError(int i) {
-        isListening = false;
-        Log.e("onError","Errooor");
-        switch (i) {
-
-            case SpeechRecognizer.ERROR_AUDIO:
-
-                Log.e("ERROR_AUDIO","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_CLIENT:
-
-                Log.e("ERROR_CLIENT","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-
-                Log.e("ERROR_PERMISSIONS","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_NETWORK:
-
-                Log.e("ERROR_NETWORK","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-
-                Log.e("ERROR_NETWORK_TIMEOUT","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_NO_MATCH:
-
-                Log.e("ERROR_NO_MATCH","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-
-                Log.e("ERROR_RECOGNIZER_BUSY","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_SERVER:
-
-                Log.e("ERROR_SERVER","Errooor");
-
-                break;
-
-            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-
-                Log.e("ERROR_SPEECH_TIMEOUT","Errooor");
-
-                break;
-
-            default:
-
-                Log.e("Default","Errooor");
-
-                break;
-        }
-
-
-    }
-
-    @Override
-    public void onResults(Bundle bundle) {
-        ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        if (results != null) {
-            lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, results));
-            if (requestCode == REQUEST_DEFAULT) {
-                intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this, results);
-            } else if (requestCode == REQUEST_ALARM_DATA) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.ALARM_SET_INTENT_TYPE_ENTITY);
-            } else if (requestCode == REQUEST_REMINDER_DATA) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY);
-            } else if (requestCode == REQUEST_PHONE_NUMBER) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.CONTACTS_CALL_INTENT_TYPE_ENTITY);
-            } else if (requestCode == REQUEST_GOOGLE_SEARCH) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY);
-            } else if (requestCode == REQUEST_OPEN_APPS) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.OPEN_APPS_INTENT_TYPE_ENTITY);
-            } else if (requestCode == REQUEST_SMS_DATA) {
-                intentAnalyzerAndRecognizer.analyzeAndRealize(results, IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY);
-            }
-        }
-    }
-
-    @Override
-    public void onPartialResults(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onEvent(int i, Bundle bundle) {
-
-    }
+    @Override public void onPartialResults(Bundle bundle) {}
+    @Override public void onEvent(int i, Bundle bundle) {}
+    @Override public void onRmsChanged(float v) {}
+    @Override public void onBufferReceived(byte[] bytes) {}
 }
