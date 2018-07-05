@@ -539,11 +539,7 @@ public class MainActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
         writeAndPlayAudio("weather",1);
-        ArrayList<String> weatherData = Weather.getWeather(weather);
-        Toast.makeText(this,weatherData.get(0)+
-                "\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),Toast.LENGTH_LONG).show();
-        messages.add(new Message(weatherData.get(0)+
-                "\n"+weatherData.get(1) +"\n" +weatherData.get(2)+"\n" +weatherData.get(3),false));
+        messages.add(new Message(Weather.getWeather(weather),false));
         scrollToBottom();
     }
 
@@ -551,6 +547,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override public void onBeginningOfSpeech() {isListening = true ;}
     @Override public void onEndOfSpeech() {isListening = false;}
     @Override public void onError(int i) {}
+    @Override public void onFunctionListSucceeded() {
+        writeAndPlayAudio("functions_list",1);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch(requestCode) {
@@ -610,8 +610,18 @@ public class MainActivity extends AppCompatActivity implements
     public void scrollToBottom() {
         recyclerView.scrollToPosition(messages.size() - 1);
     }
-    @Override public void onPartialResults(Bundle bundle) {}
-    @Override public void onEvent(int i, Bundle bundle) {}
     @Override public void onRmsChanged(float v) {}
     @Override public void onBufferReceived(byte[] bytes) {}
+
+    @Override
+    public void onPartialResults(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onEvent(int i, Bundle bundle) {
+
+    }
+
+
 }

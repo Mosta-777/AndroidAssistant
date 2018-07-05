@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 /**
  * Created by Mahmoud Salah on 7/4/2018.
@@ -36,14 +37,43 @@ public class Weather {
     public static final String LOG_TAG = Weather.class.getName();
     private CommunicationInterfaces.MainActivityFunctionalityClassesInterface analyzerinterface;
     private static String date = null;
+    private static String winningSentence = null;
     private final String url =
             "https://query.yahooapis.com/v1/public/yql?u=c&lang=ar&q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22cairo%2C%20eg%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+
+    private static HashMap<String, String> translateMap = new HashMap<String, String>() {{
+        put("Jan","يناير");
+        put("Feb","فبراير");
+        put("Mar","مارس");
+        put("April","ابريل");
+        put("May","مايو");
+        put("Jun","يونيو");
+        put("Jul","يوليو");
+        put("Aug","اغسطس");
+        put("Sep","سبتمبر");
+        put("Oct","اكتوبر");
+        put("Nov","نوفمبر");
+        put("Dec","ديسمبر");
+        put("Sunny","مشمس");
+        put("Sat","السبت");
+        put("Sun","الأحد");
+        put("Mon","الأثنين");
+        put("Tue","الثلاثاء");
+        put("Wed","الأربعاء");
+        put("Thu","الخميس");
+        put("Fri","الجمعة");
+    }};
 
     public Weather(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
                    ArrayList<ArrayList<Entity>> theWinningSentences)
     {
         analyzerinterface = intentAnalyzerAndRecognizer;
         findDate(theWinningSentences);
+        if(winningSentence!=null)
+            analyzerinterface.onChoosingTheWinningSentence(winningSentence);
+        else
+            analyzerinterface.onChoosingTheWinningSentence(
+                    IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(0)));
         analyzerinterface.onWeatherSucceeded(url);
 
     }
@@ -58,6 +88,7 @@ public class Weather {
                         containsEntity(IntentAnalyzerAndRecognizer.DATETIME_ENTITY, theWinningSentences.get(i));
                 if(dateTimeEntity != -1)
                 {
+                    winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                     date = (String) theWinningSentences.get(i).get(dateTimeEntity).getValue();
                     return true;
                 }
@@ -66,15 +97,12 @@ public class Weather {
         return false;
     }
 
-    public static ArrayList<String> getWeather(ArrayList<Forecast> weather)
+    public static String getWeather(ArrayList<Forecast> weather)
     {
-        ArrayList<String> selectedWeather = new ArrayList<>();
+        String selectedWeather = null;
         if(date==null)
         {
-            selectedWeather.add(weather.get(0).getDay() +", " + weather.get(0).getDate());
-            selectedWeather.add(weather.get(0).getCondition());
-            selectedWeather.add(weather.get(0).getHighTemp().toString());
-            selectedWeather.add(weather.get(0).getLowTemp().toString());
+            selectedWeather = translateWeather(weather.get(0));
         }
         else {
             Calendar currentDate = new GregorianCalendar();
@@ -99,10 +127,7 @@ public class Weather {
                 if (currentDate.getTimeInMillis() <= userDate.getTimeInMillis() && userDate.getTimeInMillis() <= maxDate.getTimeInMillis()) {
                     for (int i = 0; i < weather.size(); i++) {
                         if (date.substring(8, 10).equals(weather.get(i).getDate().substring(0, 2))) {
-                            selectedWeather.add(weather.get(i).getDay() + ", " + weather.get(i).getDate());
-                            selectedWeather.add(weather.get(i).getCondition());
-                            selectedWeather.add(weather.get(i).getHighTemp().toString());
-                            selectedWeather.add(weather.get(i).getLowTemp().toString());
+                            selectedWeather = translateWeather(weather.get(i));
                             break;
                         }
 
@@ -111,6 +136,16 @@ public class Weather {
             }
         }
         date = null;
+        return selectedWeather;
+    }
+
+    private static String translateWeather(Forecast weather)
+    {
+        String selectedWeather = "";
+        selectedWeather = translateMap.get(weather.getDay()) + ", " + weather.getDate().substring(0,3)
+                + translateMap.get(weather.getDate().substring(3,6)) +" "+ weather.getDate().substring(7) + "\n"
+                + "حالة الجو: "+translateMap.get(weather.getCondition()) + "\n" + "العظمي: " + "℃" + weather.getHighTemp()
+                + "\n" + "الصغري: " + "℃" + weather.getLowTemp();
         return selectedWeather;
     }
 

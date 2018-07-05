@@ -29,6 +29,7 @@ public class Reminder {
     private static String dateTime = null;
     private static String whatToBeReminded = null;
     private static boolean welcomeBack = false;
+    private static String winningSentence = "";
 
 
     public Reminder(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
@@ -44,6 +45,7 @@ public class Reminder {
             //If we have all the data to set a reminder
             if(findDateAndFreeText(reminderSentences))
             {
+                analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                 analyzerinterface.onReminderSucceeded(dateTime, whatToBeReminded);
                 resetReminder();
             }
@@ -51,18 +53,22 @@ public class Reminder {
             {
                 //If we have date in the given sentences
                 welcomeBack = true;
+                analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                 analyzerinterface.onReminderRequestingData(false,true);
             }
             else if(findFreeText(reminderSentences))
             {
                 welcomeBack = true;
                 //If we have free text in the given sentences
+                analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                 analyzerinterface.onReminderRequestingData(true, false);
             }
             else
             {
                 //If we have no data for the reminder
                 welcomeBack=true;
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(0));
+                analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                 analyzerinterface.onReminderRequestingData(false, true);
             }
         }
@@ -70,51 +76,49 @@ public class Reminder {
         {
             if((dateTime==null && whatToBeReminded==null))
             {
-                if((Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DATETIME_ENTITY,reminderSentences.get(0)))
-                        ^ (Alarm.isThereOnlyOne(IntentAnalyzerAndRecognizer.DURATION_ENTITY,reminderSentences.get(0))))
+                ArrayList<ArrayList<Entity>> tempSentences = new ArrayList<>();
+                tempSentences.add(reminderSentences.get(0));
+                if (findDate(tempSentences))
                 {
-                    int dateTimeEntity = IntentAnalyzerAndRecognizer.
-                            containsEntity(IntentAnalyzerAndRecognizer.DATETIME_ENTITY, reminderSentences.get(0));
-                    int durationEntity = IntentAnalyzerAndRecognizer.
-                            containsEntity(IntentAnalyzerAndRecognizer.DURATION_ENTITY, reminderSentences.get(0));
-                    if(dateTimeEntity != -1)
-                    {
-                        dateTime = (String) reminderSentences.get(0).get(dateTimeEntity).getValue();
-                    }
-                    else if(durationEntity != -1)
-                    {
-                        int durationValue = (int) reminderSentences.get(0).get(durationEntity).getValue();
-                        dateTime = Alarm.durationToDateTime(durationValue);
-                    }
                     whatToBeReminded = (String)reminderSentences.get(0).get(0).getValue();
+                    winningSentence = whatToBeReminded;
+                    analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                     analyzerinterface.onReminderSucceeded(dateTime, whatToBeReminded);
                     resetReminder();
                 }
                 else {
                     whatToBeReminded = (String) reminderSentences.get(0).get(0).getValue();
+                    winningSentence = whatToBeReminded;
+                    analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                     analyzerinterface.onReminderRequestingData(true, false);
                 }
             }
             else if(dateTime!=null && whatToBeReminded==null)
             {
                 whatToBeReminded = (String)reminderSentences.get(0).get(0).getValue();
+                winningSentence = whatToBeReminded;
+                analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                 analyzerinterface.onReminderSucceeded(dateTime, whatToBeReminded);
                 resetReminder();
             }
-            else if(dateTime==null && whatToBeReminded!=null)
+            else if(dateTime==null)
             {
                 if(findDate(reminderSentences))
                 {
+                    analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                     analyzerinterface.onReminderSucceeded(dateTime, whatToBeReminded);
                     resetReminder();
                 }
                 else
                 {
+                    winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(0));
+                    analyzerinterface.onChoosingTheWinningSentence(winningSentence);
                     analyzerinterface.onReminderRequestingData(true, false);
                 }
             }
 
         }
+        winningSentence = null;
     }
 
     public static boolean setReminder(Context context, String reminderDateTime, String reminderFreeText) {
@@ -186,6 +190,7 @@ public class Reminder {
                 }
                 int freeTexTEntity = IntentAnalyzerAndRecognizer.containsEntity(IntentAnalyzerAndRecognizer.REMINDER_FREE_TEXT, reminderSentences.get(i));
                 whatToBeReminded = (String) reminderSentences.get(i).get(freeTexTEntity).getValue();
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(i));
                 return true;
             }
         }
@@ -205,12 +210,14 @@ public class Reminder {
                 if(dateTimeEntity != -1)
                 {
                     dateTime = (String) reminderSentences.get(i).get(dateTimeEntity).getValue();
+                    winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(i));
                     return true;
                 }
                 else if(durationEntity != -1)
                 {
                     int durationValue = (int) reminderSentences.get(i).get(durationEntity).getValue();
                     dateTime = Alarm.durationToDateTime(durationValue);
+                    winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(i));
                     return true;
                 }
             }
@@ -226,6 +233,7 @@ public class Reminder {
             {
                 int dateTimeEntity = IntentAnalyzerAndRecognizer.containsEntity(IntentAnalyzerAndRecognizer.REMINDER_FREE_TEXT, reminderSentences.get(i));
                 whatToBeReminded = (String) reminderSentences.get(i).get(dateTimeEntity).getValue();
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(i));
                 return true;
             }
         }

@@ -3,6 +3,25 @@
     <string name="set_alarm_failed">Didn\'t set the alarm , you probably set the alarm in a time not within 24 hours</string>
 
 
+    /*What Can You Do*/
+    <string name="functions_list_1">دي الحاجات اللي أقدر اعملها:\n -أضبط المنبه\n
+        -أفتح اي تطبيق \n
+        -أفكرك بحاجة في أي وقت\n
+        -أتصل بأي شخص أو رقم\n
+        -أظهرلك أرقامك\n
+        -أظهرلك سجل المكالمات\n
+        -أبعت رسالة لشخص أو رقم\n
+        -أظهرلك رسايلك\n
+        -أفتح الواي فاي\n
+        -أفتح و أقفل البلوتوث\n
+         -أفتح و أقفل الفلاش\n
+        -افتح الكاميرا\n
+        -أشغل أغاني\n
+        -أدورلك علي أي حاجة علي النت\n
+        -أجبلك درجات الحرارة لمدة 10 أيام\n
+        -أغيرلك وضعية الموبيل(عادي - صامت - هزاز)\n
+    </string>
+
 
     /*---Approval---*/
     <string name="approval_1">تمام</string>
@@ -12,7 +31,7 @@
     <string name="approval_5">اوكيه</string>
 
 
-    <string name="alarm_set_appr_1">تمام ظبطهواك</string>
+    <string name="alarm_set_appr_1">تمام ظبطهولك</string>
     <string name="alarm_set_appr_2">خلاص كده ظبطه</string>
 
 

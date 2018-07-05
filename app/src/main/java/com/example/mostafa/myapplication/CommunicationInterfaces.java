@@ -50,6 +50,7 @@ public interface CommunicationInterfaces {
         void onOpeningNonNativeAppRequestingData(String message);
         void onChoosingTheWinningSentence(String winningSentence);
         void onWeatherSucceeded(String url);
+        void onFunctionListSucceeded();
 
     }
     interface AnalyzerNetworkUtilsInterface {

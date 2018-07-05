@@ -24,6 +24,7 @@ public class SendingSMS {
     private static String phoneNumber = null;
     private static String messageBody = null;
     private static boolean welcomeBack = false;
+    private static String winningSentence = null;
 
 
     public SendingSMS(CommunicationInterfaces.MainActivityFunctionalityClassesInterface intentAnalyzerAndRecognizer,
@@ -42,6 +43,7 @@ public class SendingSMS {
         {
             if(findContactAndText(theWinningSentences))
             {
+                analyzerInterface.onChoosingTheWinningSentence(winningSentence);
                 if (contactName!=null && phoneNumber==null)
                     analyzerInterface.onSmsSendSucceeded(contactName,messageBody);
                 else if(contactName==null && phoneNumber!=null)
@@ -51,10 +53,13 @@ public class SendingSMS {
             }
             else if(findContact(theWinningSentences))
             {
+                analyzerInterface.onChoosingTheWinningSentence(winningSentence);
                 welcomeBack = true;
                 analyzerInterface.onSmsSendRequestingData(true, false);
             }
             else {
+                analyzerInterface.onChoosingTheWinningSentence(
+                        IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(0)));
                 welcomeBack = true;
                 analyzerInterface.onSmsSendRequestingData(false,false);
             }
@@ -65,9 +70,12 @@ public class SendingSMS {
             if(contactName == null && phoneNumber== null)
             {
                 if(findPhoneNumber(theWinningSentences)) {
+                    analyzerInterface.onChoosingTheWinningSentence(winningSentence);
                     analyzerInterface.onSmsSendRequestingData(true, false);
                 }
                 else {
+                    analyzerInterface.onChoosingTheWinningSentence(
+                            IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(0)));
                     contactName = (String) theWinningSentences.get(0).get(0).getValue();
                     analyzerInterface.onSmsSendRequestingData(true,false);
                 }
@@ -75,12 +83,14 @@ public class SendingSMS {
             else if((contactName==null || phoneNumber==null) && messageBody==null)
             {
                 messageBody = (String) theWinningSentences.get(0).get(0).getValue();
+                analyzerInterface.onChoosingTheWinningSentence(messageBody);
                 if(contactName!=null && phoneNumber==null)
                     analyzerInterface.onSmsSendSucceeded(contactName, messageBody);
                 else if(contactName==null && phoneNumber!=null)
                     analyzerInterface.onSmsSendSucceeded(contactName,messageBody);
             }
         }
+        winningSentence = null;
     }
 
     private int isThereSmsShow(ArrayList<ArrayList<Entity>> theWinningSentences) {
@@ -110,6 +120,7 @@ public class SendingSMS {
                     phoneNumber = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
                 int messageBodyEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.SMS_FREE_TEXT_ENTITY, theWinningSentences.get(i));
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                 messageBody = (String) theWinningSentences.get(i).get(messageBodyEntity).getValue();
                 return true;
             }
@@ -132,6 +143,7 @@ public class SendingSMS {
                     contactName = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
                 else if(phoneNumberEntity != -1)
                     phoneNumber = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                 return true;
             }
         }
@@ -145,6 +157,7 @@ public class SendingSMS {
                 int messageBodyEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.SMS_FREE_TEXT_ENTITY, theWinningSentences.get(i));
                 messageBody = (String) theWinningSentences.get(i).get(messageBodyEntity).getValue();
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                 return true;
             }
         }
@@ -157,6 +170,7 @@ public class SendingSMS {
                 int messageBodyEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY, theWinningSentences.get(i));
                 messageBody = (String) theWinningSentences.get(i).get(messageBodyEntity).getValue();
+                winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                 return true;
             }
         }
