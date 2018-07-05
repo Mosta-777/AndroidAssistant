@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onGettingWitResponseFailed(String failingMessage) {
         Toast.makeText(this,failingMessage,Toast.LENGTH_LONG).show();
+        //TODO VO "Fe Moshkla fel Net"
     }
 
     @Override
@@ -551,7 +552,42 @@ public class MainActivity extends AppCompatActivity implements
     @Override public void onReadyForSpeech(Bundle bundle) {isListening = true ;}
     @Override public void onBeginningOfSpeech() {isListening = true ;}
     @Override public void onEndOfSpeech() {isListening = false;}
-    @Override public void onError(int i) {}
+
+    @Override public void onError(int i) {
+        isListening = false;
+        switch (i) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                Log.e("ERROR_AUDIO","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                Log.e("ERROR_CLIENT","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                Log.e("ERROR_PERMISSIONS","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                Log.e("ERROR_NETWORK","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                Log.e("ERROR_NETWORK_TIMEOUT","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                Log.e("ERROR_NO_MATCH","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                Log.e("ERROR_RECOGNIZER_BUSY","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                Log.e("ERROR_SERVER","Errooor");
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                Log.e("ERROR_SPEECH_TIMEOUT","Errooor");
+                break;
+            default:
+                Log.e("Default","Errooor");
+                break;
+        }
+    }
     @Override public void onFunctionListSucceeded() {
         writeAndPlayAudio("functions_list",1);
     }
