@@ -543,6 +543,11 @@ public class MainActivity extends AppCompatActivity implements
         scrollToBottom();
     }
 
+    @Override
+    public void onGreetingSucceeded() {
+        writeAndPlayAudio("greeting", 3);
+    }
+
     @Override public void onReadyForSpeech(Bundle bundle) {isListening = true ;}
     @Override public void onBeginningOfSpeech() {isListening = true ;}
     @Override public void onEndOfSpeech() {isListening = false;}

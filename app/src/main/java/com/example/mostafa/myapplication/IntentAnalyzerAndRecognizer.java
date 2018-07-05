@@ -62,6 +62,7 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String APP_NAME_ENTITY = "app_name";
     public static final String WEATHER_INTENT_TYPE_ENTITY = "weather";
     public static final String FUNCTIONS_LIST_INTENT_TYPE_ENTITY = "functions_list";
+    public static final String GREETING_INTENT_TYPE_ENTITY = "greeting";
     public static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
@@ -212,7 +213,12 @@ public class IntentAnalyzerAndRecognizer implements
                 ArrayList<Entity> theWinningSentence2 = theWinningSentences.get(0);
                 mainActivityAndAnalyzerInterface
                         .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentence2));
-                mainActivityAndAnalyzerInterface.onFunctionListSucceeded();
+                mainActivityAndAnalyzerInterface.onFunctionListSucceeded();break;
+            case GREETING_INTENT_TYPE_ENTITY:
+                ArrayList<Entity> theWinningSentence3 = theWinningSentences.get(0);
+                mainActivityAndAnalyzerInterface
+                        .onChoosingTheWinningSentence(extractTextFromSentence(theWinningSentence3));
+                mainActivityAndAnalyzerInterface.onGreetingSucceeded();break;
         }
 
     }
@@ -354,4 +360,6 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onCancellingWhat(String message) {}
     @Override public void onFailingToUnderstand(String message) {}
     @Override public void onFunctionListSucceeded() {}
+
+    @Override public void onGreetingSucceeded() {}
 }
