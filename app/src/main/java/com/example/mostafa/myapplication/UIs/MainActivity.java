@@ -172,6 +172,9 @@ public class MainActivity extends AppCompatActivity implements
     }
     public void goToTheAnalyzer(ArrayList<String> results){
         if (results != null) {
+            messages.add(new Message(results.get(0),true));
+            mMessageAdapter.notifyDataSetChanged();
+            scrollToBottom();
             if (requestCode == REQUEST_DEFAULT) {
                 intentAnalyzerAndRecognizer = new IntentAnalyzerAndRecognizer(this, results);
             } else if (requestCode == REQUEST_ALARM_DATA) {
@@ -192,6 +195,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onChoosingTheWinningSentence(String winningSentence) {
+        messages.remove(messages.size()-1);
+        mMessageAdapter.notifyDataSetChanged();
         messages.add(new Message(winningSentence,true));
         mMessageAdapter.notifyDataSetChanged();
         scrollToBottom();
@@ -501,7 +506,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBluetoothOffSucceeded() {
-
         if (WiFiAndBluetooth.setBluetooth(this, false)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
             Toast.makeText(this, "Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
@@ -543,9 +547,18 @@ public class MainActivity extends AppCompatActivity implements
         scrollToBottom();
     }
 
-    @Override public void onReadyForSpeech(Bundle bundle) {isListening = true ;}
-    @Override public void onBeginningOfSpeech() {isListening = true ;}
-    @Override public void onEndOfSpeech() {isListening = false;}
+    @Override public void onReadyForSpeech(Bundle bundle) {
+        isListening = true ;
+    }
+    @Override public void onBeginningOfSpeech() {
+        startOrStopListening.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btnlistening, 0, 0, 0);
+        isListening = true ;
+
+    }
+    @Override public void onEndOfSpeech() {
+        startOrStopListening.setCompoundDrawablesWithIntrinsicBounds(R.drawable.btnspeech, 0, 0, 0);
+        isListening = false;
+    }
     @Override public void onError(int i) {}
     @Override public void onFunctionListSucceeded() {
         writeAndPlayAudio("functions_list",1);

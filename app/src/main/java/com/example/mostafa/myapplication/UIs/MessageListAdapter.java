@@ -79,7 +79,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         TextView messageText;
         SentMessageHolder(View itemView) {
             super(itemView);
-            messageText = (TextView) itemView.findViewById(R.id.user_message);
+            messageText = (TextView) itemView.findViewById(R.id.input1);
         }
         void bind(Message message) {
             messageText.setText(message.getMessageBody());
@@ -89,7 +89,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         TextView messageText;
         AppMessageHolder(View itemView) {
             super(itemView);
-            messageText = (TextView) itemView.findViewById(R.id.app_text);
+            messageText = (TextView) itemView.findViewById(R.id.otput1);
         }
         void bind(Message message) {
             messageText.setText(message.getMessageBody());

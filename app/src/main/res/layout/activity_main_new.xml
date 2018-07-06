@@ -7,6 +7,7 @@
     android:orientation="vertical">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
+        android:layout_marginTop="6dp"
         android:scrollbars="vertical"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -17,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="15dp"
+        android:padding="10dp"
         android:visibility="visible"
         android:baselineAligned="false">
         <LinearLayout
@@ -29,8 +30,8 @@
 
             <Button
                 android:id="@+id/btnkeyboard"
-                android:layout_width="57dp"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="35dp"
                 android:background="#00000000"
                 android:drawableRight="@drawable/btnkeyboard" />
         </LinearLayout>
@@ -42,7 +43,7 @@
 
             <Button
                 android:id="@+id/btnSpeech"
-                android:layout_width="wrap_content"
+                android:layout_width="72dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="#00000000"
@@ -77,7 +78,7 @@
 
             <Button
                 android:id="@+id/btnnokeyboard"
-                android:layout_width="37dp"
+                android:layout_width="23dp"
                 android:layout_height="wrap_content"
                 android:background="#00000000"
                 android:drawableRight="@drawable/btnnokeyboard" />
@@ -90,10 +91,11 @@
             android:background="@drawable/shape3"
             android:gravity="center_vertical"
             android:orientation="horizontal">
+
             <Button
                 android:id="@+id/btnsend"
-                android:layout_width="43dp"
-                android:layout_height="wrap_content"
+                android:layout_width="27dp"
+                android:layout_height="25dp"
                 android:background="#00000000"
                 android:drawableRight="@drawable/btnsend" />
 
@@ -105,7 +107,7 @@
                 android:layout_marginRight="7dp"
                 android:background="#00000000"
                 android:textColor="#666666"
-                android:textSize="30sp"
+                android:textSize="22sp"
                 tools:hint="اكتب رسالة!" />
         </LinearLayout>
     </LinearLayout>
