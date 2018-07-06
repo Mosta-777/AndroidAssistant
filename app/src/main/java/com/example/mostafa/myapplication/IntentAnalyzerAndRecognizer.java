@@ -131,7 +131,7 @@ public class IntentAnalyzerAndRecognizer implements
                     if (theIntentRequestingData == null) {
                         mainActivityAndAnalyzerInterface
                                 .onChoosingTheWinningSentence(allPossibleStringsUserHasSaid.get(0));
-                        mainActivityAndAnalyzerInterface.onFailingToUnderstand("msh fahm asdak ?");
+                        mainActivityAndAnalyzerInterface.onFailingToUnderstand(allPossibleStringsUserHasSaid.get(0));
                     }
                     else giveDataToIntentRequestingData();
                 }

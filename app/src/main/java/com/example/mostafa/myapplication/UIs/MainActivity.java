@@ -231,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onAlarmSetSucceeded(String dateTime) {
         if (!Alarm.setAlarm(this,dateTime)) {
             writeAndPlayAudio("alarm_set_failed",2);
-            Toast.makeText(this, getResources().getString(R.string.set_alarm_failed), Toast.LENGTH_LONG).show();
         }
         else  writeAndPlayAudio("alarm_set_appr",2);
         requestCode = REQUEST_DEFAULT ;
@@ -240,28 +239,24 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onAlarmSetRequestingData(String message) {
         writeAndPlayAudio("alarm_set_when",2);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         requestCode = REQUEST_ALARM_DATA;
         speech.startListening(voiceRecognizer);
     }
     @Override
     public void onAlarmShowSucceeded(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         Alarm.showAlarm(this);
     }
     @Override
     public void onAlarmDeleteSucceeded(String message) {
-        // TODO for voice over : " T2dar tms7o mn il app "
         writeAndPlayAudio("alarm_delete_appr",1);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         Alarm.showAlarm(this);
     }
 
     @Override
     public void onGettingWitResponseFailed(String failingMessage) {
         Toast.makeText(this,failingMessage,Toast.LENGTH_LONG).show();
-        //TODO VO "Fe Moshkla fel Net"
+        writeAndPlayAudio("problem_internet",1);
     }
 
     @Override
@@ -270,9 +265,8 @@ public class MainActivity extends AppCompatActivity implements
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOn()) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Opened flashlight successfully .", Toast.LENGTH_SHORT).show();
         }
-        else Toast.makeText(this,"Couldn't open the flashlight.",Toast.LENGTH_SHORT).show();
+        //else Toast.makeText(this,"Couldn't open the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -281,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOff()) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Closed flashlight successfully .", Toast.LENGTH_SHORT).show();
         }
         else Toast.makeText(this,"Couldn't close the flashlight.",Toast.LENGTH_SHORT).show();
     }
@@ -289,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCancelling(String intentToCancel) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this," Tamam cancelt "+intentToCancel,Toast.LENGTH_LONG).show();
         if(intentToCancel.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
             Reminder.resetReminder();
         else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY))
@@ -302,36 +294,33 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCancellingWhat(String message) {
         writeAndPlayAudio("cancel_what",1);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onFailingToUnderstand(String message) {
-        writeAndPlayAudio("no_intent",2);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        writeAndPlayAudio("google_search_approval",2);
+        GoogleSearch.googleSearch(this,message);
     }
 
     @Override
     public void onShowCallLog(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Calling.showCallLog(this);
     }
 
     @Override
     public void onShowContacts(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Calling.showContacts(this);
     }
 
     @Override
     public void onReminderSucceeded(String dateTime, String reminderFreeText) {
         if(Reminder.setReminder(MainActivity.this, dateTime, reminderFreeText)) {
-            Toast.makeText(this, "Tamam reminder is set at  " + reminderFreeText + "   at  " + dateTime, Toast.LENGTH_LONG).show();
             writeAndPlayAudio("reminder_appr",3);
-        }else
-            Toast.makeText(this,"Fe moshkla",Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(this, "Fe moshkla", Toast.LENGTH_LONG).show();
+        }
         requestCode = REQUEST_DEFAULT ;
     }
 
@@ -346,7 +335,6 @@ public class MainActivity extends AppCompatActivity implements
             writeAndPlayAudio("reminder_free_text",2);
             missingData = "tamam, afakrak b eh ?";
         }
-        Toast.makeText(this,missingData,Toast.LENGTH_LONG).show();
         requestCode = REQUEST_REMINDER_DATA;
         speech.startListening(voiceRecognizer);
     }
@@ -361,7 +349,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCallingNumberRequestingData(String message) {
         writeAndPlayAudio("calling_who",2);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         requestCode = REQUEST_PHONE_NUMBER;
         speech.startListening(voiceRecognizer);
     }
@@ -374,35 +361,30 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCallingContactNotFound(String message) {
         writeAndPlayAudio("calling_no",2);
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onNormalModeOn(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Profiles.putOnNormalMode(this);
     }
 
     @Override
     public void onSilentModeOn(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Profiles.putOnSilentMode(this);
     }
 
     @Override
     public void onVibrationModeOn(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Profiles.putOnVibrationMode(this);
     }
 
     @Override
     public void onSmsShow(String message) {
         writeAnApprovalOnChatAndPlayApprovalAudio();
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         SendingSMS.showSms(this);
     }
 
@@ -410,18 +392,15 @@ public class MainActivity extends AppCompatActivity implements
     public void onSmsSendSucceeded(String contactName, String smsBody) {
         writeAndPlayAudio("sms_send_appr",2);
         SendingSMS.sendMessage(this,contactName,smsBody);
-        Toast.makeText(this, "Sending "+smsBody+" to "+contactName, Toast.LENGTH_SHORT).show();
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
         if(!contactNameExists && !smsBodyExists){
-            Toast.makeText(this,"Ab3at l sms l meen",Toast.LENGTH_LONG).show();
             writeAndPlayAudio("sms_send_who",2);
         }
         else if(!smsBodyExists) {
-            Toast.makeText(this, "Ab3at a2olo eh ?", Toast.LENGTH_LONG).show();
             writeAndPlayAudio("sms_send_what",2);
         }
         requestCode = REQUEST_SMS_DATA;
@@ -433,7 +412,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSearchSuccess(String message) {
         writeAndPlayAudio("google_search_approval",2);
-        Toast.makeText(this, "Tamam hasearch", Toast.LENGTH_SHORT).show();
         GoogleSearch.googleSearch(this,message);
         requestCode = REQUEST_DEFAULT ;
     }
@@ -441,20 +419,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSearchRequestingData(String message) {
         writeAndPlayAudio("google_search_what",2);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         requestCode = REQUEST_GOOGLE_SEARCH;
         speech.startListening(voiceRecognizer);
     }
 
     @Override
     public void onOpeningNonNativeAppSuccess(String appPackageName) {
-        Toast.makeText(this, "Opening "+appPackageName, Toast.LENGTH_SHORT).show();
         if (OpenNonNativeApps.isPackageInstalled(this,appPackageName)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
             OpenNonNativeApps.openApp(this, appPackageName);
         }
         else {
-            Toast.makeText(this, "Il app msh installed 3andk", Toast.LENGTH_SHORT).show();
             writeAndPlayAudio("app_open_no",2);
         }
         requestCode = REQUEST_DEFAULT ;
@@ -472,11 +447,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onWiFiOffSucceeded() {
         if(WiFiAndBluetooth.setWifi(this, false)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Tamam El Wifi et2afal", Toast.LENGTH_LONG).show();
         }
         else {
             writeAndPlayAudio("already_closed",1);
-            Toast.makeText(this, "Howa ma2fool aslan", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -484,11 +457,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onWiFiOnSucceeded() {
         if(WiFiAndBluetooth.setWifi(this, true)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Tamam El Wifi etfata7", Toast.LENGTH_LONG).show();
         }
         else {
             writeAndPlayAudio("already_opened",1);
-            Toast.makeText(this, "Howa mafto7 aslan", Toast.LENGTH_LONG).show();
         }
 
     }
@@ -497,11 +468,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onBluetoothOnSucceeded() {
         if (WiFiAndBluetooth.setBluetooth(this, true)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Tamam fata7t l bluetooth", Toast.LENGTH_LONG).show();
         }
         else {
             writeAndPlayAudio("already_opened",1);
-            Toast.makeText(this, "l bluetooth maftoo7 aslan", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -509,11 +478,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onBluetoothOffSucceeded() {
         if (WiFiAndBluetooth.setBluetooth(this, false)) {
             writeAnApprovalOnChatAndPlayApprovalAudio();
-            Toast.makeText(this, "Tamam 2afalt l bluetooth", Toast.LENGTH_LONG).show();
         }
         else {
             writeAndPlayAudio("already_closed",1);
-            Toast.makeText(this, "l bluetooth ma2fool aslan", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -567,6 +534,7 @@ public class MainActivity extends AppCompatActivity implements
     }
     @Override public void onError(int i) {
         isListening = false;
+        writeAndPlayAudio("problem",1);
         switch (i) {
             case SpeechRecognizer.ERROR_AUDIO:
                 Log.e("ERROR_AUDIO","Errooor");
@@ -611,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for the Camera", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for the Camera", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -618,42 +587,49 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for the phone call", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for the phone call", Toast.LENGTH_SHORT).show();
                 }break;
             case READ_CONTACTS_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for reading contacts", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for reading contacts", Toast.LENGTH_SHORT).show();
                 }break;
             case WRITE_CALENDAR_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for writing in calender", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for writing in calender", Toast.LENGTH_SHORT).show();
                 }break;
             case WIFI_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change wifi status", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for change wifi status", Toast.LENGTH_SHORT).show();
                 }break;
             case BLUETOOTH_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change Bluetooth status", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for change Bluetooth status", Toast.LENGTH_SHORT).show();
                 }break;
             case BLUETOOTH_ADMIN_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for Bluetooth Amin", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for Bluetooth Amin", Toast.LENGTH_SHORT).show();
                 }break;
             case RECORD_AUDIO_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for voice recognition", Toast.LENGTH_SHORT).show();
                 } else {
+                    writeAndPlayAudio("problem",1);
                     Toast.makeText(MainActivity.this, "Permission Denied for voice recognition", Toast.LENGTH_SHORT).show();
                 }break;
 
@@ -665,16 +641,6 @@ public class MainActivity extends AppCompatActivity implements
     }
     @Override public void onRmsChanged(float v) {}
     @Override public void onBufferReceived(byte[] bytes) {}
-
-    @Override
-    public void onPartialResults(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onEvent(int i, Bundle bundle) {
-
-    }
-
-
+    @Override public void onPartialResults(Bundle bundle) {}
+    @Override public void onEvent(int i, Bundle bundle) {}
 }

@@ -21,96 +21,53 @@
         -أجبلك درجات الحرارة لمدة 10 أيام\n
         -أغيرلك وضعية الموبيل(عادي - صامت - هزاز)\n
     </string>
-
-
-    /*---Approval---*/
     <string name="approval_1">تمام</string>
     <string name="approval_2">اشطه</string>
     <string name="approval_3">ماشي</string>
     <string name="approval_4">حاضر</string>
     <string name="approval_5">اوكيه</string>
-
-
     <string name="alarm_set_appr_1">تمام ظبطهولك</string>
     <string name="alarm_set_appr_2">خلاص كده ظبطه</string>
-
-
     <string name="alarm_set_failed_1">المنبه متظبتش , ممكن تكون ظبطه في مده اكتر من 24 ساعه</string>
     <string name="alarm_set_failed_2">معرفتش اظبط المنبه , المده معديه ال24 ساعه</string>
-
     <string name="alarm_set_when_1">تمام اظبطه الساعة كام</string>
     <string name="alarm_set_when_2">ماشي علي الساعه كام</string>
-
     <string name="alarm_delete_appr_1">تقدر تمسح المنبه من الابلكيشن</string>
-    
-    
     <string name="reminder_appr_1">تمام هفكرك وقتها</string>
     <string name="reminder_appr_2">ماشي عملت الريمايندر</string>
     <string name="reminder_appr_3">هفكرك وقتها ماشي</string>
-
-
     <string name="reminder_free_text_1">ماشي افكرك بايه</string>
     <string name="reminder_free_text_2">تحب افكرك بايه</string>
-
-    
-    
     <string name="reminder_time_1">عايزني افكرك امتي</string>
     <string name="reminder_time_2">افكرك بده امتي</string>
-
-
     <string name="calling_appr_1">ماشي بيرن اهو</string>
     <string name="calling_appr_2">تمام بتصل اهو</string>
-
-
     <string name="calling_who_1">عايزني اتصل بمين</string>
     <string name="calling_who_2">اتصل بمين</string>
-    
     <string name="calling_no_1">الاسم ده مش موجود في الكونتاكتس</string>
     <string name="calling_no_2">ملقتش الاسم ده في الكونتاكتس عندك</string>
-
-
     <string name="sms_send_appr_1">ماشي بص بصه عليها قبل ما ابعتها</string>
     <string name="sms_send_appr_2">تمام اكد عليها قبل ما تتبعت</string>
-
-
     <string name="sms_send_who_1">تمام ابعتها لمين</string>
     <string name="sms_send_who_2">ماشي ابعت الرساله لمين</string>
-
-
     <string name="sms_send_what_1">تحب اكتب فيها ايه</string>
     <string name="sms_send_what_2">عايزني ابعت ايه فيها</string>
-
-
     <string name="google_search_approval_1">ماشي هعرضلك النتايج</string>
     <string name="google_search_approval_2">تمام دي النتايج اللي لقيتها</string>
-
-
     <string name="google_search_what_1">تحب اسيرش علي ايه</string>
     <string name="google_search_what_2">تمام قول حابب اسيرش علي ايه</string>
-
     <string name="weather_1">ماشي دي درجات الحرارة</string>
-
-
-    <string name="no_intent_1">مش فاهمه قصدك</string>
-    <string name="no_intent_2">مفهمتش ممكن تعيد تاني</string>
-
-
+    <string name="no_intent_1">مش فاهمه قصدك , تحب اسيرش ؟</string>
+    <string name="no_intent_2">مفهمتش , تحب اسيرش علي الجمله دي ؟</string>
     <string name="cancel_what_1">اكنسل ايه مفيش حاجه بعملها</string>
-
-
     <string name="already_opened_1">هو مفتوح اساسا</string>
-
     <string name="already_closed_1">هو مقفول اساسا</string>
-
     <string name="app_open_what_1">تمام ايه اسم الابلكيشن اللي عايز تفتحه</string>
-
     <string name="app_open_no_1">الابلكيشن ده مش موجود عندك</string>
     <string name="app_open_no_2">مش لاقيه الابلكيشن ده علي الموبيل</string>
-
-    /*Greetings*/
     <string name="greeting_1">حبيبي تسلم</string>
-    <string name="greeting_2">أنا تمام, أساعدك ازاي؟</string>
+    <string name="greeting_2">أنا تمام,اقدر  أساعدك ازاي؟</string>
     <string name="greeting_3">شكرا علي سؤالك, ممكن أساعدك ازاي؟</string>
-
-
+    <string name="problem_internet_1">في مشكلة في النت ,اتاكد من النت و حاول تاني</string>
+    <string name="problem_1">في مشكلة</string>
 </resources>
