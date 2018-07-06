@@ -51,6 +51,7 @@ public interface CommunicationInterfaces {
         void onChoosingTheWinningSentence(String winningSentence);
         void onWeatherSucceeded(String url);
         void onFunctionListSucceeded();
+        void onGreetingSucceeded();
 
     }
     interface AnalyzerNetworkUtilsInterface {
