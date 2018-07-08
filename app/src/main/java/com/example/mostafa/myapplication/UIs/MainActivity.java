@@ -3,6 +3,7 @@ package com.example.mostafa.myapplication.UIs;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -212,7 +213,11 @@ public class MainActivity extends AppCompatActivity implements
         messages.add(new Message(appMessage,false));
         mMessageAdapter.notifyDataSetChanged();
         scrollToBottom();
-        // TODO : play audio with name stringID
+        int id=this.getResources().getIdentifier(stringID,"raw",this.getPackageName());
+        if (id!=0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, id);
+            mediaPlayer.start();
+        }
     }
 
     private void writeAndPlayAudio(String code, int max){
@@ -224,7 +229,12 @@ public class MainActivity extends AppCompatActivity implements
         messages.add(new Message(appMessage,false));
         mMessageAdapter.notifyDataSetChanged();
         scrollToBottom();
-        // TODO : play audio with name stringAndAudioName
+        int id=getResources()
+                .getIdentifier(stringAndAudioName,"raw",getPackageName());
+        if ( id != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, id);
+            mediaPlayer.start();
+        }
     }
 
 
