@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
     private void bindTheViews() {
-        messages.add(new Message("ازيك , ازاي اقدر اساعدك ؟",false));
+        messages.add(new Message("ازيك ,اقدر اساعدك ازاي؟",false));
         layoutkeyboard = (LinearLayout) findViewById(R.id.layoutkeyboard);
         layoutspeech = (LinearLayout) findViewById(R.id.layoutspeech);
         layoutkeyboard.setVisibility(View.GONE);
