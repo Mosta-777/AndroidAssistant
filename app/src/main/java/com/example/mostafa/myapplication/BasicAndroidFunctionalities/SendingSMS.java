@@ -87,7 +87,7 @@ public class SendingSMS {
                 if(contactName!=null && phoneNumber==null)
                     analyzerInterface.onSmsSendSucceeded(contactName, messageBody);
                 else if(contactName==null && phoneNumber!=null)
-                    analyzerInterface.onSmsSendSucceeded(contactName,messageBody);
+                    analyzerInterface.onSmsSendSucceeded(phoneNumber,messageBody);
             }
         }
         winningSentence = null;
@@ -117,7 +117,7 @@ public class SendingSMS {
                 if(contactNameEntity != -1)
                     contactName = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
                 else if(phoneNumberEntity != -1)
-                    phoneNumber = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
+                    phoneNumber = (String) theWinningSentences.get(i).get(phoneNumberEntity).getValue();
                 int messageBodyEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.SMS_FREE_TEXT_ENTITY, theWinningSentences.get(i));
                 winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
@@ -142,7 +142,7 @@ public class SendingSMS {
                 if(contactNameEntity != -1)
                     contactName = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
                 else if(phoneNumberEntity != -1)
-                    phoneNumber = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
+                    phoneNumber = (String) theWinningSentences.get(i).get(phoneNumberEntity).getValue();
                 winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));
                 return true;
             }
@@ -185,11 +185,6 @@ public class SendingSMS {
     }
 
     public static void sendMessage(Context context, String contactNumber, String smsBody){
-        if(contactName!=null && phoneNumber==null)
-        {
-            ArrayList<Contact> contacts = Calling.getTheContacts(context);
-            phoneNumber = Calling.searchForContactFourMethods(contacts, contactNumber);
-        }
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
         sendIntent.setData(Uri.parse("sms:"+phoneNumber));
         sendIntent.putExtra("sms_body", smsBody);
@@ -201,5 +196,18 @@ public class SendingSMS {
         contactName = null;messageBody = null; welcomeBack = false;phoneNumber=null;
     }
 
-
+    public static boolean findNumber(Context context)
+    {
+        if(contactName!=null && phoneNumber==null)
+        {
+            ArrayList<Contact> contacts = Calling.getTheContacts(context);
+            phoneNumber = Calling.searchForContactFourMethods(contacts, contactName);
+        }
+        else
+            return true;
+        if (phoneNumber==null)
+            return false;
+        else
+            return true;
+    }
 }

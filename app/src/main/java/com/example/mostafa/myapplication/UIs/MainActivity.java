@@ -35,6 +35,7 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Weather;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
+import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Message;
 import com.example.mostafa.myapplication.POJOS.Forecast;
 import com.example.mostafa.myapplication.R;
@@ -286,6 +287,8 @@ public class MainActivity extends AppCompatActivity implements
             Reminder.resetReminder();
         else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY))
             SendingSMS.clearData();
+        else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY))
+            GoogleSearch.clearData();
         // if the intent to cancel stored data in the shared pref. , delete it
         // else do nothing
         requestCode = REQUEST_DEFAULT ;
@@ -297,9 +300,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onFailingToUnderstand(String message) {
-        writeAndPlayAudio("google_search_approval",2);
-        GoogleSearch.googleSearch(this,message);
+    public void onFailingToUnderstand() {
+        writeAndPlayAudio("no_intent",2);
+        requestCode = REQUEST_GOOGLE_SEARCH;
+        speech.startListening(voiceRecognizer);
     }
 
     @Override
@@ -390,8 +394,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onSmsSendSucceeded(String contactName, String smsBody) {
-        writeAndPlayAudio("sms_send_appr",2);
-        SendingSMS.sendMessage(this,contactName,smsBody);
+        if(SendingSMS.findNumber(this)){
+            writeAndPlayAudio("sms_send_appr",2);
+            SendingSMS.sendMessage(this,contactName,smsBody);
+        }
+        else{
+            SendingSMS.clearData();
+            writeAndPlayAudio("calling_no",2);
+        }
+
         requestCode = REQUEST_DEFAULT ;
     }
 
@@ -422,6 +433,7 @@ public class MainActivity extends AppCompatActivity implements
         requestCode = REQUEST_GOOGLE_SEARCH;
         speech.startListening(voiceRecognizer);
     }
+
 
     @Override
     public void onOpeningNonNativeAppSuccess(String appPackageName) {
@@ -461,7 +473,6 @@ public class MainActivity extends AppCompatActivity implements
         else {
             writeAndPlayAudio("already_opened",1);
         }
-
     }
 
     @Override

@@ -21,7 +21,7 @@ public interface CommunicationInterfaces {
         void onFlashLightOff(String message);
         void onCancelling(String intentToCancel);
         void onCancellingWhat(String message);
-        void onFailingToUnderstand(String message);
+        void onFailingToUnderstand();
         void onShowCallLog(String message);
         void onShowContacts(String message);
         void onReminderSucceeded(String dateTime, String reminderFreeText);
@@ -52,7 +52,6 @@ public interface CommunicationInterfaces {
         void onWeatherSucceeded(String url);
         void onFunctionListSucceeded();
         void onGreetingSucceeded();
-
     }
     interface AnalyzerNetworkUtilsInterface {
         void toNetworkUtils(String message);

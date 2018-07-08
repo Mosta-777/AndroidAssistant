@@ -63,6 +63,7 @@ public class IntentAnalyzerAndRecognizer implements
     public static final String WEATHER_INTENT_TYPE_ENTITY = "weather";
     public static final String FUNCTIONS_LIST_INTENT_TYPE_ENTITY = "functions_list";
     public static final String GREETING_INTENT_TYPE_ENTITY = "greeting";
+    public static final String CONFIRM_INTENT_TYPE_ENTITY = "confirm";
     public static final double CONFIDENCE_THRESHOLD = 0.7 ;
     private int pointer=0;
     private ArrayList<String> allPossibleStringsUserHasSaid=new ArrayList<>();
@@ -131,7 +132,12 @@ public class IntentAnalyzerAndRecognizer implements
                     if (theIntentRequestingData == null) {
                         mainActivityAndAnalyzerInterface
                                 .onChoosingTheWinningSentence(allPossibleStringsUserHasSaid.get(0));
-                        mainActivityAndAnalyzerInterface.onFailingToUnderstand(allPossibleStringsUserHasSaid.get(0));
+                        //mainActivityAndAnalyzerInterface.onFailingToUnderstand(allPossibleStringsUserHasSaid.get(0));
+                        ArrayList<Entity> temp = new ArrayList<>();
+                        temp.add(new Entity(TEXT_ENTITY, 1.0, allPossibleStringsUserHasSaid.get(0)));
+                        ArrayList<ArrayList<Entity>> temp2 = new ArrayList<>();
+                        temp2.add(temp);
+                        new GoogleSearch(this, temp2, false);
                     }
                     else giveDataToIntentRequestingData();
                 }
@@ -350,7 +356,7 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void onCameraSucceeded(){mainActivityAndAnalyzerInterface.onCameraSucceeded();}
     @Override public void onMusicSucceeded(){mainActivityAndAnalyzerInterface.onMusicSucceeded();}
     @Override public void onGallerySucceeded() {mainActivityAndAnalyzerInterface.onGallerySucceeded();}
-
+    @Override public void onFailingToUnderstand() {mainActivityAndAnalyzerInterface.onFailingToUnderstand();}
 
     // Rubbish functions , bnnadehom 3ala tool mn hna msh bn7tag nroo7 class
     @Override public void onFlashLightOn(String message) {}
@@ -358,8 +364,6 @@ public class IntentAnalyzerAndRecognizer implements
     @Override public void toNetworkUtils(String message) {}
     @Override public void onCancelling(String intentToCancel) {}
     @Override public void onCancellingWhat(String message) {}
-    @Override public void onFailingToUnderstand(String message) {}
     @Override public void onFunctionListSucceeded() {}
-
     @Override public void onGreetingSucceeded() {}
 }
