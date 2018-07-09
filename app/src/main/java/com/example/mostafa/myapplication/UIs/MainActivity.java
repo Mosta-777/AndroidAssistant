@@ -11,14 +11,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.style.ForegroundColorSpan;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -36,7 +33,6 @@ import com.example.mostafa.myapplication.BasicAndroidFunctionalities.Weather;
 import com.example.mostafa.myapplication.BasicAndroidFunctionalities.WiFiAndBluetooth;
 import com.example.mostafa.myapplication.CommunicationInterfaces;
 import com.example.mostafa.myapplication.IntentAnalyzerAndRecognizer;
-import com.example.mostafa.myapplication.POJOS.Entity;
 import com.example.mostafa.myapplication.POJOS.Message;
 import com.example.mostafa.myapplication.POJOS.Forecast;
 import com.example.mostafa.myapplication.R;
@@ -204,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements
         scrollToBottom();
     }
 
-    private void writeAnApprovalOnChatAndPlayApprovalAudio() {
+    private String writeAnApprovalOnChat() {
         int randomNo = randomNumber.nextInt(5) + 1;
         String stringID ="approval_"+randomNo;
         String appMessage = getResources().getString(
@@ -213,14 +209,10 @@ public class MainActivity extends AppCompatActivity implements
         messages.add(new Message(appMessage,false));
         mMessageAdapter.notifyDataSetChanged();
         scrollToBottom();
-        int id=this.getResources().getIdentifier(stringID,"raw",this.getPackageName());
-        if (id!=0) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(this, id);
-            mediaPlayer.start();
-        }
+        return stringID;
     }
 
-    private void writeAndPlayAudio(String code, int max){
+    private String writeToTheMessagesRV(String code, int max){
         int randomNo = randomNumber.nextInt(max) + 1;
         String stringAndAudioName=code+"_"+randomNo;
         String appMessage = getResources().getString(
@@ -229,8 +221,15 @@ public class MainActivity extends AppCompatActivity implements
         messages.add(new Message(appMessage,false));
         mMessageAdapter.notifyDataSetChanged();
         scrollToBottom();
-        int id=getResources()
+        return stringAndAudioName;
+    }
+
+    private int getAudioID(String stringAndAudioName){
+        return getResources()
                 .getIdentifier(stringAndAudioName,"raw",getPackageName());
+    }
+
+    private void playNormalAudio(int id){
         if ( id != 0) {
             MediaPlayer mediaPlayer = MediaPlayer.create(this, id);
             mediaPlayer.start();
@@ -241,33 +240,42 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onAlarmSetSucceeded(String dateTime) {
         if (!Alarm.setAlarm(this,dateTime)) {
-            writeAndPlayAudio("alarm_set_failed",2);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("alarm_set_failed",2)));
         }
-        else  writeAndPlayAudio("alarm_set_appr",2);
+        else  playNormalAudio(getAudioID(writeToTheMessagesRV("alarm_set_appr",2)));
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onAlarmSetRequestingData(String message) {
-        writeAndPlayAudio("alarm_set_when",2);
-        requestCode = REQUEST_ALARM_DATA;
-        speech.startListening(voiceRecognizer);
+        int audioID=getAudioID(writeToTheMessagesRV("alarm_set_when",2));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_ALARM_DATA;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
     @Override
     public void onAlarmShowSucceeded(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Alarm.showAlarm(this);
     }
     @Override
     public void onAlarmDeleteSucceeded(String message) {
-        writeAndPlayAudio("alarm_delete_appr",1);
+        writeToTheMessagesRV("alarm_delete_appr",1);
         Alarm.showAlarm(this);
     }
 
     @Override
     public void onGettingWitResponseFailed(String failingMessage) {
         Toast.makeText(this,failingMessage,Toast.LENGTH_LONG).show();
-        writeAndPlayAudio("problem_internet",1);
+        writeToTheMessagesRV("problem_internet",1);
     }
 
     @Override
@@ -275,9 +283,8 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOn()) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
-        //else Toast.makeText(this,"Couldn't open the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -285,53 +292,56 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
         Flashlight flashlight = new Flashlight(this);
         if (flashlight.flashLightOff()) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
         else Toast.makeText(this,"Couldn't close the flashlight.",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onCancelling(String intentToCancel) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
-        if(intentToCancel.equals(IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY))
-            Reminder.resetReminder();
-        else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY))
-            SendingSMS.clearData();
-        else if(intentToCancel.equals(IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY))
-            GoogleSearch.clearData();
-        // if the intent to cancel stored data in the shared pref. , delete it
-        // else do nothing
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
+        switch (intentToCancel) {
+            case IntentAnalyzerAndRecognizer.REMINDER_INTENT_TYPE_ENTITY:
+                Reminder.resetReminder();
+                break;
+            case IntentAnalyzerAndRecognizer.SMS_SEND_INTENT_TYPE_ENTITY:
+                SendingSMS.clearData();
+                break;
+            case IntentAnalyzerAndRecognizer.GOOGLE_SEARCH_INTENT_TYPE_ENTITY:
+                GoogleSearch.clearData();
+                break;
+        }
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onCancellingWhat(String message) {
-        writeAndPlayAudio("cancel_what",1);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("cancel_what",1)));
     }
 
     @Override
     public void onFailingToUnderstand() {
-        writeAndPlayAudio("no_intent",2);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("no_intent",2)));
         requestCode = REQUEST_GOOGLE_SEARCH;
         speech.startListening(voiceRecognizer);
     }
 
     @Override
     public void onShowCallLog(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Calling.showCallLog(this);
     }
 
     @Override
     public void onShowContacts(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Calling.showContacts(this);
     }
 
     @Override
     public void onReminderSucceeded(String dateTime, String reminderFreeText) {
         if(Reminder.setReminder(MainActivity.this, dateTime, reminderFreeText)) {
-            writeAndPlayAudio("reminder_appr",3);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("reminder_appr",3)));
         }else {
             Toast.makeText(this, "Fe moshkla", Toast.LENGTH_LONG).show();
         }
@@ -340,31 +350,55 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onReminderRequestingData(boolean dateTimeExists, boolean reminderFreeTextExists) {
-        String missingData = null;
+        int audioID = 0;
         if(dateTimeExists) {
-            missingData = "tmam, afakar beh emta ?";
-            writeAndPlayAudio("reminder_time",2);
+            audioID = getAudioID(writeToTheMessagesRV("reminder_time",2));
         }
         else if(reminderFreeTextExists) {
-            writeAndPlayAudio("reminder_free_text",2);
-            missingData = "tamam, afakrak b eh ?";
+            audioID = getAudioID(writeToTheMessagesRV("reminder_free_text",2));
+        }if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_REMINDER_DATA;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
         }
-        requestCode = REQUEST_REMINDER_DATA;
-        speech.startListening(voiceRecognizer);
     }
 
     @Override
-    public void onCallingNumberSucceeded(String phoneNumber) {
-        writeAndPlayAudio("calling_appr",2);
-        Calling.call(this,phoneNumber);
-        requestCode = REQUEST_DEFAULT ;
+    public void onCallingNumberSucceeded(final String phoneNumber) {
+        int audioID = getAudioID(writeToTheMessagesRV("calling_appr",2));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_DEFAULT ;
+                    Calling.call(getBaseContext(),phoneNumber);
+                }
+            });
+        }
     }
 
     @Override
     public void onCallingNumberRequestingData(String message) {
-        writeAndPlayAudio("calling_who",2);
-        requestCode = REQUEST_PHONE_NUMBER;
-        speech.startListening(voiceRecognizer);
+        int audioID = getAudioID(writeToTheMessagesRV("calling_who",2));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_PHONE_NUMBER;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
 
     @Override
@@ -374,152 +408,179 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCallingContactNotFound(String message) {
-        writeAndPlayAudio("calling_no",2);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("calling_no",2)));
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onNormalModeOn(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Profiles.putOnNormalMode(this);
     }
 
     @Override
     public void onSilentModeOn(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Profiles.putOnSilentMode(this);
     }
 
     @Override
     public void onVibrationModeOn(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         Profiles.putOnVibrationMode(this);
     }
 
     @Override
     public void onSmsShow(String message) {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         SendingSMS.showSms(this);
     }
 
     @Override
     public void onSmsSendSucceeded(String contactName, String smsBody) {
         if(SendingSMS.findNumber(this)){
-            writeAndPlayAudio("sms_send_appr",2);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("sms_send_appr",2)));
             SendingSMS.sendMessage(this,contactName,smsBody);
         }
         else{
             SendingSMS.clearData();
-            writeAndPlayAudio("calling_no",2);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("calling_no",2)));
         }
-
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onSmsSendRequestingData(boolean contactNameExists, boolean smsBodyExists) {
+        int audioID = 0 ;
         if(!contactNameExists && !smsBodyExists){
-            writeAndPlayAudio("sms_send_who",2);
+            audioID = getAudioID(writeToTheMessagesRV("sms_send_who",2));
         }
         else if(!smsBodyExists) {
-            writeAndPlayAudio("sms_send_what",2);
+            audioID = getAudioID(writeToTheMessagesRV("sms_send_what",2));
         }
-        requestCode = REQUEST_SMS_DATA;
-        speech.startListening(voiceRecognizer);
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_SMS_DATA;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
     @Override
     public void onSmsSendFailed(String message){}
 
     @Override
     public void onSearchSuccess(String message) {
-        writeAndPlayAudio("google_search_approval",2);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("google_search_approval",2)));
         GoogleSearch.googleSearch(this,message);
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onSearchRequestingData(String message) {
-        writeAndPlayAudio("google_search_what",2);
-        requestCode = REQUEST_GOOGLE_SEARCH;
-        speech.startListening(voiceRecognizer);
+        int audioID = getAudioID(writeToTheMessagesRV("google_search_what",2));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_GOOGLE_SEARCH;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
 
 
     @Override
     public void onOpeningNonNativeAppSuccess(String appPackageName) {
         if (OpenNonNativeApps.isPackageInstalled(this,appPackageName)) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
             OpenNonNativeApps.openApp(this, appPackageName);
         }
         else {
-            writeAndPlayAudio("app_open_no",2);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("app_open_no",2)));
         }
         requestCode = REQUEST_DEFAULT ;
     }
 
     @Override
     public void onOpeningNonNativeAppRequestingData(String message) {
-        writeAndPlayAudio("app_open_what",1);
-        requestCode = REQUEST_OPEN_APPS;
-        speech.startListening(voiceRecognizer);
+        int audioID = getAudioID(writeToTheMessagesRV("app_open_what",1));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_OPEN_APPS;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
 
 
     @Override
     public void onWiFiOffSucceeded() {
         if(WiFiAndBluetooth.setWifi(this, false)) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
         else {
-            writeAndPlayAudio("already_closed",1);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("already_closed",1)));
         }
     }
 
     @Override
     public void onWiFiOnSucceeded() {
         if(WiFiAndBluetooth.setWifi(this, true)) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
         else {
-            writeAndPlayAudio("already_opened",1);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("already_opened",1)));
         }
     }
 
     @Override
     public void onBluetoothOnSucceeded() {
         if (WiFiAndBluetooth.setBluetooth(this, true)) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
         else {
-            writeAndPlayAudio("already_opened",1);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("already_opened",1)));
         }
     }
 
     @Override
     public void onBluetoothOffSucceeded() {
         if (WiFiAndBluetooth.setBluetooth(this, false)) {
-            writeAnApprovalOnChatAndPlayApprovalAudio();
+            playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         }
         else {
-            writeAndPlayAudio("already_closed",1);
+            playNormalAudio(getAudioID(writeToTheMessagesRV("already_closed",1)));
         }
     }
 
     @Override
     public void onMusicSucceeded() {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         BuiltInApps.openMusic(this);
     }
 
     @Override
     public void onGallerySucceeded() {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         BuiltInApps.openGallery(this);
     }
 
     @Override
     public void onCameraSucceeded() {
-        writeAnApprovalOnChatAndPlayApprovalAudio();
+        playNormalAudio(getAudioID(writeAnApprovalOnChat()));
         BuiltInApps.openCamera(this);
     }
     @Override
@@ -531,14 +592,14 @@ public class MainActivity extends AppCompatActivity implements
         catch (Exception e){
             e.printStackTrace();
         }
-        writeAndPlayAudio("weather",1);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("weather",1)));
         messages.add(new Message(Weather.getWeather(weather),false));
         scrollToBottom();
     }
 
     @Override
     public void onGreetingSucceeded() {
-        writeAndPlayAudio("greeting", 3);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("greeting", 3)));
     }
 
     @Override public void onReadyForSpeech(Bundle bundle) {
@@ -555,7 +616,7 @@ public class MainActivity extends AppCompatActivity implements
     }
     @Override public void onError(int i) {
         isListening = false;
-        writeAndPlayAudio("problem",1);
+        playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
         switch (i) {
             case SpeechRecognizer.ERROR_AUDIO:
                 Log.e("ERROR_AUDIO","Errooor");
@@ -590,7 +651,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
     @Override public void onFunctionListSucceeded() {
-        writeAndPlayAudio("functions_list",1);
+        writeToTheMessagesRV("functions_list",1);
     }
 
     @Override
@@ -600,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for the Camera", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for the Camera", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -608,49 +669,49 @@ public class MainActivity extends AppCompatActivity implements
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for the phone call", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for the phone call", Toast.LENGTH_SHORT).show();
                 }break;
             case READ_CONTACTS_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for reading contacts", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for reading contacts", Toast.LENGTH_SHORT).show();
                 }break;
             case WRITE_CALENDAR_REQUEST :
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for writing in calender", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for writing in calender", Toast.LENGTH_SHORT).show();
                 }break;
             case WIFI_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change wifi status", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for change wifi status", Toast.LENGTH_SHORT).show();
                 }break;
             case BLUETOOTH_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for change Bluetooth status", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for change Bluetooth status", Toast.LENGTH_SHORT).show();
                 }break;
             case BLUETOOTH_ADMIN_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for Bluetooth Amin", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for Bluetooth Amin", Toast.LENGTH_SHORT).show();
                 }break;
             case RECORD_AUDIO_REQUEST:
                 if (grantResults.length > 0  &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(MainActivity.this, "Permission granted for voice recognition", Toast.LENGTH_SHORT).show();
                 } else {
-                    writeAndPlayAudio("problem",1);
+                    playNormalAudio(getAudioID(writeToTheMessagesRV("problem",1)));
                     Toast.makeText(MainActivity.this, "Permission Denied for voice recognition", Toast.LENGTH_SHORT).show();
                 }break;
 
