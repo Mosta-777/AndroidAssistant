@@ -321,9 +321,18 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFailingToUnderstand() {
-        playNormalAudio(getAudioID(writeToTheMessagesRV("no_intent",2)));
-        requestCode = REQUEST_GOOGLE_SEARCH;
-        speech.startListening(voiceRecognizer);
+        int audioID = getAudioID(writeToTheMessagesRV("no_intent",2));
+        if ( audioID != 0) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    requestCode = REQUEST_GOOGLE_SEARCH;
+                    speech.startListening(voiceRecognizer);
+                }
+            });
+        }
     }
 
     @Override
