@@ -371,18 +371,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCallingNumberSucceeded(final String phoneNumber) {
-        int audioID = getAudioID(writeToTheMessagesRV("calling_appr",2));
-        if ( audioID != 0) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(this, audioID);
-            mediaPlayer.start();
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    requestCode = REQUEST_DEFAULT ;
-                    Calling.call(getBaseContext(),phoneNumber);
-                }
-            });
-        }
+        writeToTheMessagesRV("calling_appr",2);
+        requestCode = REQUEST_DEFAULT ;
+        Calling.call(this,phoneNumber);
     }
 
     @Override
