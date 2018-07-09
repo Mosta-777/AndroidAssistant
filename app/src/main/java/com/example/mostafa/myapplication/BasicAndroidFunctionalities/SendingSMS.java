@@ -114,8 +114,14 @@ public class SendingSMS {
                 int phoneNumberEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY, theWinningSentences.get(i));
 
-                if(contactNameEntity != -1)
+                if(contactNameEntity != -1) {
                     contactName = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
+                    if(contactName.equals("شخص") || contactName.equals("حد") || contactName.equals("رقم")
+                            ||contactName.equals("لحد") || contactName.equals("لشخص") || contactName.equals("لرقم")){
+                        contactName = null;
+                        return false;
+                    }
+                }
                 else if(phoneNumberEntity != -1)
                     phoneNumber = (String) theWinningSentences.get(i).get(phoneNumberEntity).getValue();
                 int messageBodyEntity = IntentAnalyzerAndRecognizer.
@@ -139,8 +145,14 @@ public class SendingSMS {
                 int phoneNumberEntity = IntentAnalyzerAndRecognizer.
                         containsEntity(IntentAnalyzerAndRecognizer.PHONE_NUMBER_ENTITY, theWinningSentences.get(i));
 
-                if(contactNameEntity != -1)
+                if(contactNameEntity != -1) {
                     contactName = (String) theWinningSentences.get(i).get(contactNameEntity).getValue();
+                    if(contactName.equals("شخص") || contactName.equals("حد") || contactName.equals("رقم")
+                            ||contactName.equals("لحد") || contactName.equals("لشخص") || contactName.equals("لرقم")) {
+                        contactName=null;
+                        return false;
+                    }
+                }
                 else if(phoneNumberEntity != -1)
                     phoneNumber = (String) theWinningSentences.get(i).get(phoneNumberEntity).getValue();
                 winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(theWinningSentences.get(i));

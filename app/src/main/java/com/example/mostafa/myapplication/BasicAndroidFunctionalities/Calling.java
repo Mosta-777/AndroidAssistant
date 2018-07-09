@@ -77,6 +77,11 @@ public class Calling {
                 String theContactName = theSentenceContainingTheContactName.get(IntentAnalyzerAndRecognizer
                         .containsEntity(IntentAnalyzerAndRecognizer.CONTACT_NAME_ENTITY, theSentenceContainingTheContactName))
                         .getValue().toString();
+                if(theContactName.equals("شخص") || theContactName.equals("حد") || theContactName.equals("رقم")
+                        ||theContactName.equals("بحد") || theContactName.equals("بشخص") || theContactName.equals("برقم")){
+                    analyzerInterface.onCallingNumberRequestingData("Tamam aklm meen");
+                    return;
+                }
                 analyzerInterface.onChoosingTheWinningSentence
                         (IntentAnalyzerAndRecognizer.extractTextFromSentence(theSentenceContainingTheContactName));
                 analyzerInterface.onCallingByName(theContactName);

@@ -190,6 +190,8 @@ public class Reminder {
                 }
                 int freeTexTEntity = IntentAnalyzerAndRecognizer.containsEntity(IntentAnalyzerAndRecognizer.REMINDER_FREE_TEXT, reminderSentences.get(i));
                 whatToBeReminded = (String) reminderSentences.get(i).get(freeTexTEntity).getValue();
+                if(whatToBeReminded.equals("حاجة") || whatToBeReminded.equals("شئ") || whatToBeReminded.equals("حاجه"))
+                    return false;
                 winningSentence = IntentAnalyzerAndRecognizer.extractTextFromSentence(reminderSentences.get(i));
                 return true;
             }
